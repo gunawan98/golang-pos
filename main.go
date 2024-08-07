@@ -24,7 +24,14 @@ func main() {
 	categoryService := service.NewCategoryService(categoryRepository, db, validate)
 	categoryController := controller.NewCategoryController(categoryService)
 
+	loginController := controller.NewLoginController()
+
 	router := httprouter.New()
+
+	router.POST("/api/login", loginController.Login)
+
+	// Protect routes with the middleware
+	protectedRouter := middleware.NewAuthMiddleware(router)
 
 	router.GET("/api/categories", categoryController.FindAll)
 	router.GET("/api/categories/:categoryId", categoryController.FindById)
@@ -36,7 +43,7 @@ func main() {
 
 	server := http.Server{
 		Addr:    "localhost:3000",
-		Handler: middleware.NewAuthMiddleware(router),
+		Handler: protectedRouter,
 	}
 
 	err := server.ListenAndServe()
