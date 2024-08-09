@@ -36,7 +36,7 @@ func (middleware *AuthMiddleware) ServeHTTP(writer http.ResponseWriter, request 
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}
-		return []byte("your_secret_key"), nil
+		return []byte("toko_secret_key"), nil
 	})
 
 	if err != nil || !token.Valid {
