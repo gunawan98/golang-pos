@@ -7,45 +7,52 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/gunawan98/golang-restfull-api/helper"
 	"github.com/gunawan98/golang-restfull-api/model/web"
+	"github.com/gunawan98/golang-restfull-api/service"
 	"github.com/julienschmidt/httprouter"
 )
 
 type LoginController struct {
+	UserService service.UserService
 }
 
-func NewLoginController() *LoginController {
-	return &LoginController{}
-}
-
-func (controller *LoginController) Login(writer http.ResponseWriter, request *http.Request, _ httprouter.Params) {
-	var credentials web.LoginRequest
-	helper.ReadFromRequestBody(request, &credentials)
-
-	if credentials.Username == "user" && credentials.Password == "password" {
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-			"username": credentials.Username,
-			"exp":      time.Now().Add(time.Hour * 72).Unix(),
-		})
-
-		tokenString, err := token.SignedString([]byte("your_secret_key"))
-		if err != nil {
-			helper.PanicIfError(err)
-			return
-		}
-
-		response := web.WebResponse{
-			Code:   http.StatusOK,
-			Status: "OK",
-			Data:   tokenString,
-		}
-
-		helper.WriteToResponseBody(writer, response)
-	} else {
-		response := web.WebResponse{
-			Code:   http.StatusUnauthorized,
-			Status: "UNAUTHORIZED",
-		}
-
-		helper.WriteToResponseBody(writer, response)
+func NewLoginController(userService service.UserService) *LoginController {
+	return &LoginController{
+		UserService: userService,
 	}
+}
+
+func (controller *LoginController) Login(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	loginRequest := web.LoginRequest{}
+	helper.ReadFromRequestBody(request, &loginRequest)
+
+	userResponse := controller.UserService.Authenticate(request.Context(), loginRequest)
+	// if err != nil {
+	// 		webResponse := web.WebResponse{
+	// 				Code:   http.StatusUnauthorized,
+	// 				Status: "Unauthorized",
+	// 		}
+	// 		helper.WriteToResponseBody(writer, webResponse)
+	// 		return
+	// }
+
+	// Generate JWT Token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userId":   userResponse.Id,
+		"username": userResponse.Username,
+		"role":     userResponse.Role,
+		"exp":      time.Now().Add(time.Hour * 2).Unix(),
+	})
+
+	tokenString, err := token.SignedString([]byte("toko_secret_key"))
+	if err != nil {
+		helper.PanicIfError(err)
+	}
+
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   tokenString,
+	}
+
+	helper.WriteToResponseBody(writer, webResponse)
 }
