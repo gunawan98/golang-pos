@@ -33,6 +33,7 @@ func main() {
 	router := httprouter.New()
 
 	router.POST("/api/login", loginController.Login)
+	router.POST("/api/refresh", loginController.Refresh)
 
 	router.GET("/api/categories", categoryController.FindAll)
 	router.GET("/api/categories/:categoryId", categoryController.FindById)
