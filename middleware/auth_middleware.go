@@ -19,7 +19,7 @@ func NewAuthMiddleware(handler http.Handler) *AuthMiddleware {
 
 func (middleware *AuthMiddleware) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	// Bypass authentication for login endpoint
-	if request.URL.Path == "/api/login" {
+	if request.URL.Path == "/api/login" || request.URL.Path == "/api/refresh" {
 		middleware.Handler.ServeHTTP(writer, request)
 		return
 	}
@@ -36,7 +36,7 @@ func (middleware *AuthMiddleware) ServeHTTP(writer http.ResponseWriter, request 
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}
-		return []byte("toko_secret_key"), nil
+		return []byte("your_secret_key"), nil
 	})
 
 	if err != nil || !token.Valid {
