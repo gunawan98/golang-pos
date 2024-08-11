@@ -60,9 +60,12 @@ func (service *UserServiceImpl) Create(ctx context.Context, request web.UserCrea
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
+	helper.PanicIfError(err)
+
 	user := domain.User{
 		Username: request.Username,
-		Password: request.Password,
+		Password: string(hashedPassword),
 		Role:     request.Role,
 	}
 
@@ -84,7 +87,10 @@ func (service *UserServiceImpl) Update(ctx context.Context, request web.UserUpda
 		panic(exception.NewNotFoundError(err.Error()))
 	}
 
-	user.Password = request.Password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
+	helper.PanicIfError(err)
+
+	user.Password = string(hashedPassword)
 	user.Role = request.Role
 
 	user = service.UserRepository.Update(ctx, tx, user)
