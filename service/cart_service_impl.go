@@ -13,16 +13,18 @@ import (
 )
 
 type CartServiceImpl struct {
-	CartRepository repository.CartRepository
-	DB             *sql.DB
-	Validate       *validator.Validate
+	CartRepository    repository.CartRepository
+	ProductRepository repository.ProductRepository
+	DB                *sql.DB
+	Validate          *validator.Validate
 }
 
-func NewCartService(cartRepository repository.CartRepository, DB *sql.DB, validate *validator.Validate) CartService {
+func NewCartService(cartRepository repository.CartRepository, productRepository repository.ProductRepository, DB *sql.DB, validate *validator.Validate) CartService {
 	return &CartServiceImpl{
-		CartRepository: cartRepository,
-		DB:             DB,
-		Validate:       validate,
+		CartRepository:    cartRepository,
+		ProductRepository: productRepository,
+		DB:                DB,
+		Validate:          validate,
 	}
 }
 
@@ -57,12 +59,21 @@ func (service *CartServiceImpl) AddProductToCart(ctx context.Context, cartId int
 		panic(exception.NewNotFoundError(errGetCart.Error()))
 	}
 
+	product, errGetProduct := service.ProductRepository.FindById(ctx, tx, request.ProductID)
+	if errGetProduct != nil {
+		panic(exception.NewNotFoundError(errGetProduct.Error()))
+	}
+
+	// Set UnitPrice and calculate TotalPrice
+	unitPrice := product.Price
+	totalPrice := unitPrice * request.Quantity
+
 	cartItem := domain.CartItem{
 		CartID:     cartId,
 		ProductID:  request.ProductID,
 		Quantity:   request.Quantity,
-		UnitPrice:  request.UnitPrice,
-		TotalPrice: request.TotalPrice,
+		UnitPrice:  unitPrice,
+		TotalPrice: totalPrice,
 	}
 
 	cartItem = service.CartRepository.AddItemToCart(ctx, tx, cartItem)
