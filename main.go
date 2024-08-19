@@ -28,6 +28,14 @@ func main() {
 	categoryService := service.NewCategoryService(categoryRepository, db, validate)
 	categoryController := controller.NewCategoryController(categoryService)
 
+	productRepository := repository.NewProductRepository()
+	productService := service.NewProductService(productRepository, db, validate)
+	productController := controller.NewProductController(productService)
+
+	cartRepository := repository.NewCartRepository()
+	cartService := service.NewCartService(cartRepository, db, validate)
+	cartController := controller.NewCartController(cartService)
+
 	loginController := controller.NewLoginController(userService)
 
 	router := httprouter.New()
@@ -41,11 +49,20 @@ func main() {
 	router.PUT("/api/categories/:categoryId", categoryController.Update)
 	router.DELETE("/api/categories/:categoryId", categoryController.Delete)
 
+	router.GET("/api/product", productController.FindAll)
+	router.GET("/api/product/:productId", productController.FindById)
+	router.POST("/api/product", productController.Create)
+	router.PUT("/api/product/:productId", productController.Update)
+	router.DELETE("/api/product/:productId", productController.Delete)
+
 	router.GET("/api/user", userController.FindAll)
 	router.GET("/api/user/:userId", userController.FindById)
 	router.POST("/api/user", userController.Create)
 	router.PUT("/api/user/:userId", userController.Update)
 	router.DELETE("/api/user/:userId", userController.Delete)
+
+	router.POST("/api/cart", cartController.CreateCart)
+	router.POST("/api/cart-item/:cartId", cartController.AddItem)
 
 	router.PanicHandler = exception.ErrorHandler
 
