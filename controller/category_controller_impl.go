@@ -52,7 +52,6 @@ func (controller *CategoryControllerImpl) Update(writer http.ResponseWriter, req
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
-
 }
 
 func (controller *CategoryControllerImpl) Delete(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
@@ -67,7 +66,6 @@ func (controller *CategoryControllerImpl) Delete(writer http.ResponseWriter, req
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
-
 }
 
 func (controller *CategoryControllerImpl) FindById(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
@@ -83,7 +81,6 @@ func (controller *CategoryControllerImpl) FindById(writer http.ResponseWriter, r
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
-
 }
 
 func (controller *CategoryControllerImpl) FindAll(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
@@ -95,5 +92,4 @@ func (controller *CategoryControllerImpl) FindAll(writer http.ResponseWriter, re
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
-
 }
