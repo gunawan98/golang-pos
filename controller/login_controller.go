@@ -37,7 +37,7 @@ func (controller *LoginController) Login(writer http.ResponseWriter, request *ht
 	// }
 
 	// Define expiration times
-	accessExpirationTime := time.Now().Add(15 * time.Minute)
+	accessExpirationTime := time.Now().Add(60 * time.Minute)
 	refreshExpirationTime := time.Now().Add(7 * 24 * time.Hour) // 7 days
 
 	// Generate Access Token
@@ -123,7 +123,7 @@ func (controller *LoginController) Refresh(writer http.ResponseWriter, request *
 	username := claims["username"]
 
 	// Generate new access token
-	accessExpirationTime := time.Now().Add(15 * time.Minute)
+	accessExpirationTime := time.Now().Add(60 * time.Minute)
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userId":   userId,
 		"username": username,
