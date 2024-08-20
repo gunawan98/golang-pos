@@ -81,3 +81,14 @@ func ToCartItemResponse(cartItem domain.CartItem) web.CartItemResponse {
 		TotalPrice: cartItem.TotalPrice,
 	}
 }
+
+// PURCHASE RESPONSE ###
+func ToPurchaseResponse(purchase domain.Purchase) web.PurchaseResponse {
+	return web.PurchaseResponse{
+		CartID:        purchase.CartID,
+		CashierID:     purchase.CashierID,
+		TotalAmount:   purchase.TotalAmount,
+		PaymentMethod: purchase.PaymentMethod,
+		CreatedAt:     purchase.CreatedAt,
+	}
+}
