@@ -12,4 +12,5 @@ type CartRepository interface {
 	GetCartById(ctx context.Context, tx *sql.Tx, cartId int) (domain.Cart, error)
 	AddItemToCart(ctx context.Context, tx *sql.Tx, cartItem domain.CartItem) domain.CartItem
 	GetItemsByCartId(ctx context.Context, tx *sql.Tx, cartId int) []domain.CartItem
+	UpdateCartStatus(ctx context.Context, tx *sql.Tx, cartId int) error
 }
