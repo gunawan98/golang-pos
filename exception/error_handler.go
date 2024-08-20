@@ -18,6 +18,10 @@ func ErrorHandler(writer http.ResponseWriter, request *http.Request, err interfa
 		return
 	}
 
+	if badRequestError(writer, request, err) {
+		return
+	}
+
 	if dataAlreadyExistsError(writer, request, err) {
 		return
 	}
@@ -53,6 +57,25 @@ func dataAlreadyExistsError(writer http.ResponseWriter, _ *http.Request, err int
 		webResponse := web.WebResponse{
 			Code:   http.StatusConflict,
 			Status: "CONFLICT",
+			Data:   exception.Error,
+		}
+
+		helper.WriteToResponseBody(writer, webResponse)
+		return true
+	} else {
+		return false
+	}
+}
+
+func badRequestError(writer http.ResponseWriter, _ *http.Request, err interface{}) bool {
+	exception, ok := err.(BadRequestError)
+	if ok {
+		writer.Header().Set("Content-Type", "application/json")
+		writer.WriteHeader(http.StatusBadRequest)
+
+		webResponse := web.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "BAD REQUEST",
 			Data:   exception.Error,
 		}
 
