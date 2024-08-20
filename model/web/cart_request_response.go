@@ -15,10 +15,8 @@ type CartResponse struct {
 }
 
 type CartItemCreateRequest struct {
-	ProductID  int `validate:"required" json:"product_id"`
-	Quantity   int `validate:"required" json:"quantity"`
-	UnitPrice  int `validate:"required" json:"unit_price"`
-	TotalPrice int `validate:"required" json:"total_price"`
+	ProductID int `validate:"required" json:"product_id"`
+	Quantity  int `validate:"required" json:"quantity"`
 }
 
 type CartItemResponse struct {
