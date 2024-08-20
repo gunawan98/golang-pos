@@ -51,27 +51,24 @@ func (controller *CartControllerImpl) AddItem(writer http.ResponseWriter, reques
 	helper.WriteToResponseBody(writer, webResponse)
 }
 
-// func (c *CartControllerImpl) GetCartDetails(w http.ResponseWriter, r *http.Request) {
-// 	cartId, err := strconv.Atoi(r.URL.Query().Get("cart_id"))
-// 	if err != nil {
-// 		http.Error(w, "Invalid cart ID", http.StatusBadRequest)
-// 		return
-// 	}
+func (controller *CartControllerImpl) GetCartDetails(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	getCartId := params.ByName("cartId")
+	cartId, err := strconv.Atoi(getCartId)
+	helper.PanicIfError(err)
 
-// 	cart, items, err := c.cartService.GetCartDetails(cartId)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
+	cart, items := controller.CartService.GetCartDetails(request.Context(), cartId)
 
-// 	response := struct {
-// 		Cart  *domain.Cart      `json:"cart"`
-// 		Items []domain.CartItem `json:"items"`
-// 	}{
-// 		Cart:  cart,
-// 		Items: items,
-// 	}
+	data := map[string]interface{}{
+		"Cart":  cart,
+		"Items": items,
+	}
 
-// 	w.Header().Set("Content-Type", "application/json")
-// 	json.NewEncoder(w).Encode(response)
-// }
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   data,
+	}
+
+	helper.WriteToResponseBody(writer, webResponse)
+
+}
