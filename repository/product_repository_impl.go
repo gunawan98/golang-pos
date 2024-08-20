@@ -17,7 +17,7 @@ func NewProductRepository() ProductRepository {
 }
 
 func (repository *ProductRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, product domain.Product) domain.Product {
-	SQL := "insert into product(name, barcode, stock, price, discount) values (?, ?, ?, ?, ?)"
+	SQL := "INSERT INTO product(name, barcode, stock, price, discount) VALUES (?, ?, ?, ?, ?)"
 	result, err := tx.ExecContext(ctx, SQL, product.Name, product.Barcode, product.Stock, product.Price, product.Discount)
 	helper.PanicIfError(err)
 
@@ -29,7 +29,7 @@ func (repository *ProductRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, p
 }
 
 func (repository *ProductRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, product domain.Product) domain.Product {
-	SQL := "update product set name = ?, barcode = ?, stock = ?, price = ?, discount = ? where id = ?"
+	SQL := "UPDATE product SET name = ?, barcode = ?, stock = ?, price = ?, discount = ? WHERE id = ?"
 	_, err := tx.ExecContext(ctx, SQL, product.Name, product.Barcode, product.Stock, product.Price, product.Discount, product.Id)
 	helper.PanicIfError(err)
 
@@ -37,13 +37,13 @@ func (repository *ProductRepositoryImpl) Update(ctx context.Context, tx *sql.Tx,
 }
 
 func (repository *ProductRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, productId int) {
-	SQL := "delete from product where id = ?"
+	SQL := "DELETE FROM product WHERE id = ?"
 	_, err := tx.ExecContext(ctx, SQL, productId)
 	helper.PanicIfError(err)
 }
 
 func (repository *ProductRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, productId int) (domain.Product, error) {
-	SQL := "select id, name, barcode, stock, price, discount from product where id = ?"
+	SQL := "SELECT id, name, barcode, stock, price, discount FROM product WHERE id = ?"
 	rows, err := tx.QueryContext(ctx, SQL, productId)
 	helper.PanicIfError(err)
 	defer rows.Close()
@@ -59,7 +59,7 @@ func (repository *ProductRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 }
 
 func (repository *ProductRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []domain.Product {
-	SQL := "select id, name, barcode, stock, price, discount from product"
+	SQL := "SELECT id, name, barcode, stock, price, discount FROM product"
 	rows, err := tx.QueryContext(ctx, SQL)
 	helper.PanicIfError(err)
 	defer rows.Close()
@@ -76,7 +76,7 @@ func (repository *ProductRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx
 }
 
 func (repository *ProductRepositoryImpl) FindByBarcode(ctx context.Context, tx *sql.Tx, id int, barcode string) (domain.Product, error) {
-	SQL := "select id, name, barcode, stock, price, discount from product where barcode = ? and id != ?"
+	SQL := "SELECT id, name, barcode, stock, price, discount FROM product WHERE barcode = ? AND id != ?"
 	rows, err := tx.QueryContext(ctx, SQL, barcode, id)
 	helper.PanicIfError(err)
 	defer rows.Close()
@@ -89,4 +89,10 @@ func (repository *ProductRepositoryImpl) FindByBarcode(ctx context.Context, tx *
 	} else {
 		return product, sql.ErrNoRows
 	}
+}
+
+func (repository *ProductRepositoryImpl) UpdateStock(ctx context.Context, tx *sql.Tx, productId int, stock int) error {
+	SQL := "UPDATE product SET stock = ? WHERE id = ?"
+	_, err := tx.ExecContext(ctx, SQL, stock, productId)
+	return err
 }
