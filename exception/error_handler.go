@@ -35,10 +35,22 @@ func validationError(writer http.ResponseWriter, _ *http.Request, err interface{
 		writer.Header().Set("Content-Type", "application/json")
 		writer.WriteHeader(http.StatusBadRequest)
 
+		// Customize error message for PaymentMethod field
+		var customErrors []string
+		for _, e := range exception {
+			if e.Field() == "Role" {
+				customErrors = append(customErrors, "Invalid role user. Accepted values are: user, cashier, admin.")
+			} else if e.Field() == "PaymentMethod" {
+				customErrors = append(customErrors, "Invalid payment method. Accepted values are: cash, credit-card, ewallet, other.")
+			} else {
+				customErrors = append(customErrors, e.Error()) // default error message
+			}
+		}
+
 		webResponse := web.WebResponse{
 			Code:   http.StatusBadRequest,
 			Status: "BAD REQUEST",
-			Data:   exception.Error(),
+			Data:   customErrors,
 		}
 
 		helper.WriteToResponseBody(writer, webResponse)
