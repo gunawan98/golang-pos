@@ -8,7 +8,7 @@ import (
 )
 
 func NewDB() *sql.DB {
-	db, err := sql.Open("mysql", "root:gunawan98@tcp(localhost:3306)/golang_database?parseTime=true")
+	db, err := sql.Open("mysql", "root:gunawan98@tcp(localhost:3306)/retail_pos?parseTime=true")
 	helper.PanicIfError(err)
 
 	db.SetConnMaxIdleTime(5)
@@ -18,3 +18,5 @@ func NewDB() *sql.DB {
 
 	return db
 }
+
+// migrate -database "mysql://userDB:passwordDB@tcp(localhost:3306)/retail_pos" -path db/migrations up
