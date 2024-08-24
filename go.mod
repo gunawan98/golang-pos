@@ -1,6 +1,6 @@
 module github.com/gunawan98/golang-restfull-api
 
-go 1.22.0
+go 1.21
 
 require (
 	github.com/go-playground/validator/v10 v10.22.0
