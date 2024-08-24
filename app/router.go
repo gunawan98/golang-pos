@@ -1,14 +1,22 @@
 package app
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/gunawan98/golang-restfull-api/controller"
 	"github.com/gunawan98/golang-restfull-api/exception"
 	"github.com/julienschmidt/httprouter"
 )
 
+func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	fmt.Fprint(w, "Welcome To test production!\n")
+}
+
 func NewRouter(loginController controller.LoginController, categoryController controller.CategoryController, productController controller.ProductController, userController controller.UserController, cartController controller.CartController, purchaseController controller.PurchaseController) *httprouter.Router {
 	router := httprouter.New()
 
+	router.GET("/", Index)
 	router.POST("/api/login", loginController.Login)
 	router.POST("/api/refresh", loginController.Refresh)
 
