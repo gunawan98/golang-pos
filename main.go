@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/go-playground/validator/v10"
 	_ "github.com/go-sql-driver/mysql"
@@ -45,10 +46,21 @@ func main() {
 	// Protect routes with the middleware
 	protectedRouter := middleware.NewAuthMiddleware(router)
 
+	// Get the port from environment variables (Koyeb will set this)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // Default to 8080 if PORT is not set
+	}
+
 	server := http.Server{
-		Addr:    "localhost:3000",
+		Addr:    ":" + port,
 		Handler: protectedRouter,
 	}
+
+	// server := http.Server{
+	// 	Addr:    "localhost:3000",
+	// 	Handler: protectedRouter,
+	// }
 
 	err := server.ListenAndServe()
 	helper.PanicIfError(err)
