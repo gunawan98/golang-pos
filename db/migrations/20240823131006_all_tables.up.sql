@@ -5,7 +5,7 @@ CREATE TABLE `user` (
   `role` enum('user','cashier','admin') NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_unique` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 CREATE TABLE `cart` (
@@ -16,7 +16,7 @@ CREATE TABLE `cart` (
   PRIMARY KEY (`id`),
   KEY `cart_user_FK` (`cashier_id`),
   CONSTRAINT `cart_user_FK` FOREIGN KEY (`cashier_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 CREATE TABLE `purchase` (
@@ -29,7 +29,7 @@ CREATE TABLE `purchase` (
   PRIMARY KEY (`id`),
   KEY `purchase_cart_FK` (`cart_id`),
   CONSTRAINT `purchase_cart_FK` FOREIGN KEY (`cart_id`) REFERENCES `cart` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 CREATE TABLE `product` (
@@ -41,7 +41,7 @@ CREATE TABLE `product` (
   `discount` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `product_unique` (`barcode`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 CREATE TABLE `category` (
@@ -49,7 +49,7 @@ CREATE TABLE `category` (
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `category_unique` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 CREATE TABLE `cart_item` (
@@ -64,7 +64,7 @@ CREATE TABLE `cart_item` (
   KEY `cart_item_product_FK` (`product_id`),
   CONSTRAINT `cart_item_cart_FK` FOREIGN KEY (`cart_id`) REFERENCES `cart` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `cart_item_product_FK` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 CREATE TABLE `product_category` (
