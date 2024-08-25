@@ -8,15 +8,17 @@ import (
 )
 
 func NewDB() *sql.DB {
-	db, err := sql.Open("mysql", "root:gunawan98@tcp(localhost:3306)/retail_pos?parseTime=true")
+
+	db, err := sql.Open("mysql", "root:4IjEyA@tcp(localhost:3306)/pos?parseTime=True")
 	helper.PanicIfError(err)
 
+	db.SetMaxOpenConns(25)
 	db.SetConnMaxIdleTime(5)
-	db.SetMaxOpenConns(20)
-	db.SetConnMaxLifetime(60 * time.Minute)
+
 	db.SetConnMaxIdleTime(10 * time.Minute)
 
 	return db
 }
 
-// migrate -database "mysql://userDB:passwordDB@tcp(localhost:3306)/retail_pos" -path db/migrations up
+// C:\Users\Hidayat\task\golang-pos\app\database.go
+// migrate -database "mysql://root:4IjEyA@tcp(localhost:3306)/pos" -path db/migrations up

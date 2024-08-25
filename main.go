@@ -7,6 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gunawan98/golang-restfull-api/app"
+	"github.com/gunawan98/golang-restfull-api/config"
 	"github.com/gunawan98/golang-restfull-api/controller"
 	"github.com/gunawan98/golang-restfull-api/helper"
 	"github.com/gunawan98/golang-restfull-api/middleware"
@@ -15,8 +16,10 @@ import (
 )
 
 func main() {
+	config.LoadEnvVars()
+	db := config.MySQLConnect()
 
-	db := app.NewDB()
+	// db := app.NewDB()
 	validate := validator.New()
 
 	userRepository := repository.NewUserRepository()
@@ -47,11 +50,11 @@ func main() {
 	protectedRouter := middleware.NewAuthMiddleware(router)
 
 	// Get the port from environment variables (Koyeb will set this)
-	port := os.Getenv("PORT")
+	port := os.Getenv("APP_PORT")
 	if port == "" {
 		port = "8080" // Default to 8080 if PORT is not set
 	}
-
+	// fmt.Print(port)
 	server := http.Server{
 		Addr:    ":" + port,
 		Handler: protectedRouter,

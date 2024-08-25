@@ -1,0 +1,12 @@
+#your apps
+APP_NAME=POS
+APP_ENV=
+APP_PORT=8088
+APP_BASE_URL=localhost
+
+DB_USER="root"
+DB_PASS="sdfsef"
+DB_NAME="dfdfd"
+DB_HOST="localhost"
+DB_PORT=3306
+DB_DEBUG=true
