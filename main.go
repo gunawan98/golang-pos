@@ -19,7 +19,6 @@ func main() {
 	config.LoadEnvVars()
 	db := config.MySQLConnect()
 
-	// db := app.NewDB()
 	validate := validator.New()
 
 	userRepository := repository.NewUserRepository()
