@@ -39,13 +39,11 @@ func LoadMySQLConfig() DatabaseMysql {
 func MySQLConnect() *sql.DB {
 
 	dbConf := LoadMySQLConfig()
-	// // db, err := sql.Open("mysql", "root:4IjEyA@tcp(localhost:3306)/pos?parseTime=true")
 
 	dsn := fmt.Sprintf(`%s:%s@tcp(%s:%s)/%s?parseTime=True`, dbConf.User, dbConf.Password, dbConf.Host, dbConf.Port, dbConf.DBName)
 	fmt.Print(dsn)
 
-	// db, err := sql.Open("mysql", "root:4IjEyA@tcp(localhost:3306)/pos?parseTime=True")
-	db, err := sql.Open("mysql", "root:4IjEyA@tcp(localhost:3306)/pos?parseTime=True")
+	db, err := sql.Open("mysql", dsn)
 	helper.PanicIfError(err)
 
 	db.SetMaxOpenConns(25)
