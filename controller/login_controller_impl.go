@@ -25,7 +25,6 @@ func NewLoginController(userService service.UserService) LoginController {
 func (controller *LoginControllerImpl) Login(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	loginRequest := web.LoginRequest{}
 	helper.ReadFromRequestBody(request, &loginRequest)
-
 	userResponse := controller.UserService.Authenticate(request.Context(), loginRequest)
 	// if err != nil {
 	// 		webResponse := web.WebResponse{

@@ -1,0 +1,12 @@
+#your apps
+APP_NAME=POS
+APP_ENV=
+APP_PORT=8080
+APP_BASE_URL=localhost
+
+DB_USER="root"
+DB_PASS="gunawan98"
+DB_NAME="retail_pos"
+DB_HOST="localhost"
+DB_PORT=3306
+DB_DEBUG=true
