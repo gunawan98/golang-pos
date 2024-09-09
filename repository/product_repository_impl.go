@@ -75,9 +75,9 @@ func (repository *ProductRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx
 	return products
 }
 
-func (repository *ProductRepositoryImpl) FindByBarcode(ctx context.Context, tx *sql.Tx, id int, barcode string) (domain.Product, error) {
-	SQL := "SELECT id, name, barcode, stock, price, discount FROM product WHERE barcode = ? AND id != ?"
-	rows, err := tx.QueryContext(ctx, SQL, barcode, id)
+func (repository *ProductRepositoryImpl) FindByBarcode(ctx context.Context, tx *sql.Tx, barcode string) (domain.Product, error) {
+	SQL := "SELECT id, name, barcode, stock, price, discount FROM product WHERE barcode = ? "
+	rows, err := tx.QueryContext(ctx, SQL, barcode)
 	helper.PanicIfError(err)
 	defer rows.Close()
 

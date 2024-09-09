@@ -3,7 +3,7 @@ package web
 import "time"
 
 type CartCreateRequest struct {
-	CashierID int  `validate:"required" json:"cashier_id"`
+	// CashierID int  `validate:"required" json:"cashier_id"`
 	Completed bool `json:"completed"`
 }
 
@@ -15,8 +15,8 @@ type CartResponse struct {
 }
 
 type CartItemCreateRequest struct {
-	ProductID int `validate:"required" json:"product_id"`
-	Quantity  int `validate:"required" json:"quantity"`
+	Barcode  string `validate:"required" json:"barcode"`
+	Quantity int    `validate:"required" json:"quantity"`
 }
 
 type CartItemResponse struct {

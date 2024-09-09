@@ -28,7 +28,7 @@ func NewCartService(cartRepository repository.CartRepository, productRepository 
 	}
 }
 
-func (service *CartServiceImpl) CreateNewCart(ctx context.Context, request web.CartCreateRequest) web.CartResponse {
+func (service *CartServiceImpl) CreateNewCart(ctx context.Context, request web.CartCreateRequest, userId float64) web.CartResponse {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 
@@ -37,7 +37,7 @@ func (service *CartServiceImpl) CreateNewCart(ctx context.Context, request web.C
 	defer helper.CommitOrRollback(tx)
 
 	cart := domain.Cart{
-		CashierID: request.CashierID,
+		CashierID: int(userId),
 		Completed: request.Completed,
 	}
 
@@ -59,18 +59,19 @@ func (service *CartServiceImpl) AddProductToCart(ctx context.Context, cartId int
 		panic(exception.NewNotFoundError(errGetCart.Error()))
 	}
 
-	product, errGetProduct := service.ProductRepository.FindById(ctx, tx, request.ProductID)
+	product, errGetProduct := service.ProductRepository.FindByBarcode(ctx, tx, request.Barcode)
 	if errGetProduct != nil {
 		panic(exception.NewNotFoundError(errGetProduct.Error()))
 	}
 
 	// Set UnitPrice and calculate TotalPrice
+	productId := product.Id
 	unitPrice := product.Price
 	totalPrice := unitPrice * request.Quantity
 
 	cartItem := domain.CartItem{
 		CartID:     cartId,
-		ProductID:  request.ProductID,
+		ProductID:  productId,
 		Quantity:   request.Quantity,
 		UnitPrice:  unitPrice,
 		TotalPrice: totalPrice,

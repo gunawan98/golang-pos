@@ -20,11 +20,11 @@ func NewRouter(loginController controller.LoginController, categoryController co
 	router.POST("/api/login", loginController.Login)
 	router.POST("/api/refresh", loginController.Refresh)
 
-	router.GET("/api/categories", categoryController.FindAll)
-	router.GET("/api/categories/:categoryId", categoryController.FindById)
-	router.POST("/api/categories", categoryController.Create)
-	router.PUT("/api/categories/:categoryId", categoryController.Update)
-	router.DELETE("/api/categories/:categoryId", categoryController.Delete)
+	router.GET("/api/category", categoryController.FindAll)
+	router.GET("/api/category/:categoryId", categoryController.FindById)
+	router.POST("/api/category", categoryController.Create)
+	router.PUT("/api/category/:categoryId", categoryController.Update)
+	router.DELETE("/api/category/:categoryId", categoryController.Delete)
 
 	router.GET("/api/product", productController.FindAll)
 	router.GET("/api/product/:productId", productController.FindById)

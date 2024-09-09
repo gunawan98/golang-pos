@@ -11,6 +11,8 @@ require (
 	golang.org/x/crypto v0.19.0
 )
 
+require github.com/rs/cors v1.11.1
+
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

@@ -35,7 +35,7 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request web.Produ
 	defer helper.CommitOrRollback(tx)
 
 	// Checking barcode if exists
-	_, err = service.ProductRepository.FindByBarcode(ctx, tx, 0, request.Barcode)
+	_, err = service.ProductRepository.FindByBarcode(ctx, tx, request.Barcode)
 	if err == nil {
 		panic(exception.NewDataAlreadyExistsError("Barcode already exists"))
 	} else if err != sql.ErrNoRows {
@@ -68,7 +68,7 @@ func (service *ProductServiceImpl) Update(ctx context.Context, request web.Produ
 		panic(exception.NewNotFoundError(err.Error()))
 	}
 
-	_, err = service.ProductRepository.FindByBarcode(ctx, tx, request.Id, request.Barcode)
+	_, err = service.ProductRepository.FindByBarcode(ctx, tx, request.Barcode)
 	if err == nil {
 		panic(exception.NewDataAlreadyExistsError("Barcode already exists"))
 	} else if err != sql.ErrNoRows {

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	globalctx "github.com/gunawan98/golang-restfull-api/global_ctx"
 	"github.com/gunawan98/golang-restfull-api/helper"
 	"github.com/gunawan98/golang-restfull-api/model/web"
 	"github.com/gunawan98/golang-restfull-api/service"
@@ -20,10 +21,22 @@ func NewCartController(cartService service.CartService) CartController {
 
 func (controller *CartControllerImpl) CreateCart(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 
+	userId, ok := request.Context().Value(globalctx.UserIDKey()).(float64)
+	if !ok {
+		// If userId is not present, return an unauthorized error
+		webResponse := web.WebResponse{
+			Code:   http.StatusUnauthorized,
+			Status: "Unauthorized",
+		}
+
+		helper.WriteToResponseBody(writer, webResponse)
+		return
+	}
+
 	cartCreateRequest := web.CartCreateRequest{}
 	helper.ReadFromRequestBody(request, &cartCreateRequest)
 
-	cartResponse := controller.CartService.CreateNewCart(request.Context(), cartCreateRequest)
+	cartResponse := controller.CartService.CreateNewCart(request.Context(), cartCreateRequest, userId)
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "OK",

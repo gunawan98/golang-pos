@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/gunawan98/golang-restfull-api/middleware"
 	"github.com/gunawan98/golang-restfull-api/repository"
 	"github.com/gunawan98/golang-restfull-api/service"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -48,21 +50,26 @@ func main() {
 	// Protect routes with the middleware
 	protectedRouter := middleware.NewAuthMiddleware(router)
 
-	// Get the port from environment variables (Koyeb will set this)
+	// Enable CORS
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		ExposedHeaders:   []string{"Content-Length"},
+		AllowCredentials: true,
+	}).Handler(protectedRouter)
+
 	port := os.Getenv("APP_PORT")
 	if port == "" {
 		port = "8080" // Default to 8080 if PORT is not set
 	}
-	// fmt.Print(port)
+
+	fmt.Printf("Server is listening on http://localhost:%s\n", port)
+
 	server := http.Server{
 		Addr:    ":" + port,
-		Handler: protectedRouter,
+		Handler: corsHandler,
 	}
-
-	// server := http.Server{
-	// 	Addr:    "localhost:3000",
-	// 	Handler: protectedRouter,
-	// }
 
 	err := server.ListenAndServe()
 	helper.PanicIfError(err)
