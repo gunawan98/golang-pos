@@ -41,14 +41,14 @@ func MySQLConnect() *sql.DB {
 	dbConf := LoadMySQLConfig()
 
 	dsn := fmt.Sprintf(`%s:%s@tcp(%s:%s)/%s?parseTime=True`, dbConf.User, dbConf.Password, dbConf.Host, dbConf.Port, dbConf.DBName)
-	fmt.Print(dsn)
+	// fmt.Println(dsn)
 
 	db, err := sql.Open("mysql", dsn)
 	helper.PanicIfError(err)
 
-	db.SetMaxOpenConns(25)
 	db.SetConnMaxIdleTime(5)
-
+	db.SetMaxOpenConns(20)
+	db.SetConnMaxLifetime(60 * time.Minute)
 	db.SetConnMaxIdleTime(10 * time.Minute)
 
 	return db

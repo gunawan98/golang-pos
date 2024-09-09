@@ -1,10 +1,12 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
+	globalctx "github.com/gunawan98/golang-restfull-api/global_ctx"
 	"github.com/gunawan98/golang-restfull-api/helper"
 	"github.com/gunawan98/golang-restfull-api/model/web"
 )
@@ -18,7 +20,7 @@ func NewAuthMiddleware(handler http.Handler) *AuthMiddleware {
 }
 
 func (middleware *AuthMiddleware) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	// Bypass authentication for login endpoint
+	// Bypass authentication for login and refresh endpoints
 	if request.URL.Path == "/api/login" || request.URL.Path == "/api/refresh" {
 		middleware.Handler.ServeHTTP(writer, request)
 		return
@@ -44,6 +46,54 @@ func (middleware *AuthMiddleware) ServeHTTP(writer http.ResponseWriter, request 
 		return
 	}
 
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		respondWithError(writer, http.StatusUnauthorized, "Invalid token claims")
+		return
+	}
+
+	userIdFloat, ok := claims["userId"].(float64)
+	if !ok {
+		respondWithError(writer, http.StatusUnauthorized, "Invalid token userId")
+		return
+	}
+
+	role, ok := claims["role"].(string)
+	if !ok {
+		respondWithError(writer, http.StatusUnauthorized, "Invalid token role")
+		return
+	}
+
+	requiresAdmin := map[string]bool{
+		"/api/user":     true,
+		"/api/category": true,
+		"/api/product":  true,
+	}
+
+	if requiresAdmin[request.URL.Path] {
+		if role != "admin" {
+			respondWithError(writer, http.StatusForbidden, "Access denied: insufficient role")
+			return
+		}
+	}
+
+	requiresAdminOrCashier := map[string]bool{
+		"/api/cart":      true,
+		"/api/cart-item": true,
+		"/api/purchase":  true,
+	}
+
+	if requiresAdminOrCashier[request.URL.Path] {
+		if role != "admin" && role != "cashier" {
+			respondWithError(writer, http.StatusForbidden, "Access denied: insufficient role")
+			return
+		}
+	}
+
+	ctx := context.WithValue(request.Context(), globalctx.UserIDKey(), userIdFloat)
+	request = request.WithContext(ctx)
+
+	// Allow the request to proceed
 	middleware.Handler.ServeHTTP(writer, request)
 }
 

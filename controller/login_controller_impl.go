@@ -25,6 +25,7 @@ func NewLoginController(userService service.UserService) LoginController {
 func (controller *LoginControllerImpl) Login(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	loginRequest := web.LoginRequest{}
 	helper.ReadFromRequestBody(request, &loginRequest)
+
 	userResponse := controller.UserService.Authenticate(request.Context(), loginRequest)
 	// if err != nil {
 	// 		webResponse := web.WebResponse{
@@ -36,13 +37,14 @@ func (controller *LoginControllerImpl) Login(writer http.ResponseWriter, request
 	// }
 
 	// Define expiration times
-	accessExpirationTime := time.Now().Add(60 * time.Minute)
+	accessExpirationTime := time.Now().Add(5 * time.Second)
 	refreshExpirationTime := time.Now().Add(7 * 24 * time.Hour) // 7 days
 
 	// Generate Access Token
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userId":   userResponse.Id,
 		"username": userResponse.Username,
+		"role":     userResponse.Role,
 		"exp":      accessExpirationTime.Unix(),
 	})
 
@@ -55,6 +57,7 @@ func (controller *LoginControllerImpl) Login(writer http.ResponseWriter, request
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userId":   userResponse.Id,
 		"username": userResponse.Username,
+		"role":     userResponse.Role,
 		"exp":      refreshExpirationTime.Unix(),
 	})
 
@@ -86,8 +89,6 @@ func (controller *LoginControllerImpl) Refresh(writer http.ResponseWriter, reque
 	}{}
 	helper.ReadFromRequestBody(request, &refreshRequest)
 
-	fmt.Println("Received refresh token:", refreshRequest.RefreshToken)
-
 	// Parse the token
 	token, err := jwt.Parse(refreshRequest.RefreshToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -118,14 +119,19 @@ func (controller *LoginControllerImpl) Refresh(writer http.ResponseWriter, reque
 		return
 	}
 
+	// Define expiration times
+	accessExpirationTime := time.Now().Add(5 * time.Second)
+	refreshExpirationTime := time.Now().Add(7 * 24 * time.Hour) // 7 days
+
 	userId := claims["userId"]
 	username := claims["username"]
+	role := claims["role"]
 
 	// Generate new access token
-	accessExpirationTime := time.Now().Add(60 * time.Minute)
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userId":   userId,
 		"username": username,
+		"role":     role,
 		"exp":      accessExpirationTime.Unix(),
 	})
 
@@ -136,10 +142,10 @@ func (controller *LoginControllerImpl) Refresh(writer http.ResponseWriter, reque
 	}
 
 	// Generate new refresh token
-	refreshExpirationTime := time.Now().Add(24 * time.Hour)
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userId":   userId,
 		"username": username,
+		"role":     role,
 		"exp":      refreshExpirationTime.Unix(),
 	})
 

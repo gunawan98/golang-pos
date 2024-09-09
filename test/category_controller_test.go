@@ -25,7 +25,7 @@ func TestCreateCategorySuccess(t *testing.T) {
 	router := setupRouter(db)
 
 	requestBody := strings.NewReader(`{"name" : "Laptop"}`)
-	request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/categories", requestBody)
+	request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/category", requestBody)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQzOTkwMDQsInVzZXJJZCI6NiwidXNlcm5hbWUiOiJodXJpZ2EifQ.jBEWhy4zkVYm4jGBlI72Yj3tfcc5lq2B4lwI_lzJinQ")
 
@@ -51,7 +51,7 @@ func TestCreateCategoryFailed(t *testing.T) {
 	router := setupRouter(db)
 
 	requestBody := strings.NewReader(`{"name" : ""}`)
-	request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/categories", requestBody)
+	request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/category", requestBody)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("X-API-Key", "RAHASIA")
 
@@ -84,7 +84,7 @@ func TestUpdateCategorySuccess(t *testing.T) {
 	router := setupRouter(db)
 
 	requestBody := strings.NewReader(`{"name" : "Gadget"}`)
-	request := httptest.NewRequest(http.MethodPut, "http://localhost:3000/api/categories/"+strconv.Itoa(category.Id), requestBody)
+	request := httptest.NewRequest(http.MethodPut, "http://localhost:3000/api/category/"+strconv.Itoa(category.Id), requestBody)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("X-API-Key", "RAHASIA")
 
@@ -119,7 +119,7 @@ func TestUpdateCategoryFailed(t *testing.T) {
 	router := setupRouter(db)
 
 	requestBody := strings.NewReader(`{"name" : ""}`)
-	request := httptest.NewRequest(http.MethodPut, "http://localhost:3000/api/categories/"+strconv.Itoa(category.Id), requestBody)
+	request := httptest.NewRequest(http.MethodPut, "http://localhost:3000/api/category/"+strconv.Itoa(category.Id), requestBody)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("X-API-Key", "RAHASIA")
 
@@ -151,7 +151,7 @@ func TestGetCategorySuccess(t *testing.T) {
 
 	router := setupRouter(db)
 
-	request := httptest.NewRequest(http.MethodGet, "http://localhost:3000/api/categories/"+strconv.Itoa(category.Id), nil)
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:3000/api/category/"+strconv.Itoa(category.Id), nil)
 	request.Header.Add("X-API-Key", "RAHASIA")
 
 	recorder := httptest.NewRecorder()
@@ -176,7 +176,7 @@ func TestGetCategoryFailed(t *testing.T) {
 	truncateCategory(db)
 	router := setupRouter(db)
 
-	request := httptest.NewRequest(http.MethodGet, "http://localhost:3000/api/categories/404", nil)
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:3000/api/category/404", nil)
 	request.Header.Add("X-API-Key", "RAHASIA")
 
 	recorder := httptest.NewRecorder()
@@ -207,7 +207,7 @@ func TestDeleteCategorySuccess(t *testing.T) {
 
 	router := setupRouter(db)
 
-	request := httptest.NewRequest(http.MethodDelete, "http://localhost:3000/api/categories/"+strconv.Itoa(category.Id), nil)
+	request := httptest.NewRequest(http.MethodDelete, "http://localhost:3000/api/category/"+strconv.Itoa(category.Id), nil)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("X-API-Key", "RAHASIA")
 
@@ -231,7 +231,7 @@ func TestDeleteCategoryFailed(t *testing.T) {
 	truncateCategory(db)
 	router := setupRouter(db)
 
-	request := httptest.NewRequest(http.MethodDelete, "http://localhost:3000/api/categories/404", nil)
+	request := httptest.NewRequest(http.MethodDelete, "http://localhost:3000/api/category/404", nil)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("X-API-Key", "RAHASIA")
 
@@ -266,7 +266,7 @@ func TestListCategoriesSuccess(t *testing.T) {
 
 	router := setupRouter(db)
 
-	request := httptest.NewRequest(http.MethodGet, "http://localhost:3000/api/categories", nil)
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:3000/api/category", nil)
 	request.Header.Add("X-API-Key", "RAHASIA")
 
 	recorder := httptest.NewRecorder()
@@ -302,7 +302,7 @@ func TestUnauthorized(t *testing.T) {
 	truncateCategory(db)
 	router := setupRouter(db)
 
-	request := httptest.NewRequest(http.MethodGet, "http://localhost:3000/api/categories", nil)
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:3000/api/category", nil)
 	request.Header.Add("X-API-Key", "SALAH")
 
 	recorder := httptest.NewRecorder()
