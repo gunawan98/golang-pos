@@ -1,24 +1,32 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
+	"io"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/google/uuid"
 	"github.com/gunawan98/golang-restfull-api/app"
 	"github.com/gunawan98/golang-restfull-api/config"
 	"github.com/gunawan98/golang-restfull-api/controller"
 	"github.com/gunawan98/golang-restfull-api/helper"
 	"github.com/gunawan98/golang-restfull-api/middleware"
+	"github.com/gunawan98/golang-restfull-api/middleware/log"
 	"github.com/gunawan98/golang-restfull-api/repository"
 	"github.com/gunawan98/golang-restfull-api/service"
 	"github.com/rs/cors"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func main() {
 	config.LoadEnvVars()
+
+	log.LoadLogger()
 	db := config.MySQLConnect()
 
 	validate := validator.New()
@@ -64,13 +72,50 @@ func main() {
 		port = "8080" // Default to 8080 if PORT is not set
 	}
 
-	fmt.Printf("Server is listening on http://localhost:%s\n", port)
+	log.Logger.Info("Server is listening on http://localhost: " + port)
+	// fmt.Printf("Server is listening on http://localhost:%s\n", port)
 
 	server := http.Server{
-		Addr:    ":" + port,
-		Handler: corsHandler,
+		Addr: ":" + port,
+		// Handler: corsHandler,
+		Handler: WrapHandler(corsHandler),
+		// ErrorLog:WrapHandler,
 	}
 
 	err := server.ListenAndServe()
+
 	helper.PanicIfError(err)
+}
+func WrapHandler(f http.Handler) http.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request) {
+		var response string
+		res.Header().Set("Content-Type", "application/json")
+		encoder := json.NewEncoder(res)
+		err := encoder.Encode(response)
+		if err != nil {
+			log.Logger.Error(err.Error())
+		}
+		bytedata, err := io.ReadAll(req.Body)
+		reqBodyString := string(bytedata)
+		if err != nil {
+			log.Logger.Error(err.Error())
+		}
+		responseTime := time.Now()
+		requestTime := time.Now()
+		fields := []zapcore.Field{
+			zap.String("unique_id", uuid.New().String()),
+			zap.String("request", reqBodyString),
+			zap.String("response", string(response)),
+		}
+		if req != nil {
+			fields = append(fields, zap.String("request_time", requestTime.String()))
+		}
+
+		if res != nil {
+			fields = append(fields, zap.String("response_time", responseTime.String()))
+			processingTime := time.Since(requestTime)
+			fields = append(fields, zap.Int("processing_time_nano_second", int(processingTime.Nanoseconds())))
+		}
+		log.Logger.Info("log global request and response ", fields...)
+	}
 }
