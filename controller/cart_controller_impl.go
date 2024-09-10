@@ -19,11 +19,32 @@ func NewCartController(cartService service.CartService) CartController {
 	return &CartControllerImpl{CartService: cartService}
 }
 
-func (controller *CartControllerImpl) CreateCart(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-
+func (controller *CartControllerImpl) AvailableCart(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	userId, ok := request.Context().Value(globalctx.UserIDKey()).(float64)
 	if !ok {
 		// If userId is not present, return an unauthorized error
+		webResponse := web.WebResponse{
+			Code:   http.StatusUnauthorized,
+			Status: "Unauthorized",
+		}
+
+		helper.WriteToResponseBody(writer, webResponse)
+		return
+	}
+
+	cartResponse := controller.CartService.AvailableCart(request.Context(), userId)
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   cartResponse,
+	}
+
+	helper.WriteToResponseBody(writer, webResponse)
+}
+
+func (controller *CartControllerImpl) CreateCart(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	userId, ok := request.Context().Value(globalctx.UserIDKey()).(float64)
+	if !ok {
 		webResponse := web.WebResponse{
 			Code:   http.StatusUnauthorized,
 			Status: "Unauthorized",
@@ -47,6 +68,17 @@ func (controller *CartControllerImpl) CreateCart(writer http.ResponseWriter, req
 }
 
 func (controller *CartControllerImpl) AddItem(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	userId, ok := request.Context().Value(globalctx.UserIDKey()).(float64)
+	if !ok {
+		webResponse := web.WebResponse{
+			Code:   http.StatusUnauthorized,
+			Status: "Unauthorized",
+		}
+
+		helper.WriteToResponseBody(writer, webResponse)
+		return
+	}
+
 	cartItemCreateRequest := web.CartItemCreateRequest{}
 	helper.ReadFromRequestBody(request, &cartItemCreateRequest)
 
@@ -54,7 +86,7 @@ func (controller *CartControllerImpl) AddItem(writer http.ResponseWriter, reques
 	cartId, err := strconv.Atoi(getCartId)
 	helper.PanicIfError(err)
 
-	cartResponse := controller.CartService.AddProductToCart(request.Context(), cartId, cartItemCreateRequest)
+	cartResponse := controller.CartService.AddProductToCart(request.Context(), userId, cartId, cartItemCreateRequest)
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "OK",

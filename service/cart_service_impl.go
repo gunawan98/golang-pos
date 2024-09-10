@@ -28,6 +28,16 @@ func NewCartService(cartRepository repository.CartRepository, productRepository 
 	}
 }
 
+func (service *CartServiceImpl) AvailableCart(ctx context.Context, userId float64) []web.CartResponse {
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	listCart := service.CartRepository.FindAvailableCart(ctx, tx, int(userId))
+
+	return helper.ToCartResponses(listCart)
+}
+
 func (service *CartServiceImpl) CreateNewCart(ctx context.Context, request web.CartCreateRequest, userId float64) web.CartResponse {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
@@ -46,7 +56,7 @@ func (service *CartServiceImpl) CreateNewCart(ctx context.Context, request web.C
 	return helper.ToCartResponse(cart)
 }
 
-func (service *CartServiceImpl) AddProductToCart(ctx context.Context, cartId int, request web.CartItemCreateRequest) web.CartItemResponse {
+func (service *CartServiceImpl) AddProductToCart(ctx context.Context, userId float64, cartId int, request web.CartItemCreateRequest) web.CartItemResponse {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 
@@ -54,9 +64,13 @@ func (service *CartServiceImpl) AddProductToCart(ctx context.Context, cartId int
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
-	_, errGetCart := service.CartRepository.GetCartById(ctx, tx, cartId)
+	getCart, errGetCart := service.CartRepository.GetCartById(ctx, tx, cartId)
 	if errGetCart != nil {
 		panic(exception.NewNotFoundError(errGetCart.Error()))
+	}
+
+	if int(userId) != getCart.CashierID {
+		panic(exception.NewNotFoundError("Cart ID not available"))
 	}
 
 	product, errGetProduct := service.ProductRepository.FindByBarcode(ctx, tx, request.Barcode)
@@ -64,20 +78,34 @@ func (service *CartServiceImpl) AddProductToCart(ctx context.Context, cartId int
 		panic(exception.NewNotFoundError(errGetProduct.Error()))
 	}
 
-	// Set UnitPrice and calculate TotalPrice
 	productId := product.Id
 	unitPrice := product.Price
 	totalPrice := unitPrice * request.Quantity
 
-	cartItem := domain.CartItem{
-		CartID:     cartId,
-		ProductID:  productId,
-		Quantity:   request.Quantity,
-		UnitPrice:  unitPrice,
-		TotalPrice: totalPrice,
+	// Cek apakah item sudah ada dalam keranjang
+	cartItem, errFind := service.CartRepository.FindItemByCartAndProduct(ctx, tx, cartId, productId)
+	if errFind != nil {
+		if errFind == sql.ErrNoRows {
+			// Jika item tidak ada, tambahkan item baru
+			newCartItem := domain.CartItem{
+				CartID:     cartId,
+				ProductID:  productId,
+				Quantity:   request.Quantity,
+				UnitPrice:  unitPrice,
+				TotalPrice: totalPrice,
+			}
+			newCartItem = service.CartRepository.AddItemToCart(ctx, tx, newCartItem)
+			return helper.ToCartItemResponse(newCartItem)
+		} else {
+			helper.PanicIfError(errFind)
+		}
 	}
 
-	cartItem = service.CartRepository.AddItemToCart(ctx, tx, cartItem)
+	// Jika item sudah ada, lakukan update
+	cartItem.Quantity += request.Quantity
+	cartItem.TotalPrice = cartItem.UnitPrice * cartItem.Quantity
+	errUpdate := service.CartRepository.UpdateCartItem(ctx, tx, cartItem)
+	helper.PanicIfError(errUpdate)
 
 	return helper.ToCartItemResponse(cartItem)
 }
