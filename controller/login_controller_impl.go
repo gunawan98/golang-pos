@@ -37,7 +37,7 @@ func (controller *LoginControllerImpl) Login(writer http.ResponseWriter, request
 	// }
 
 	// Define expiration times
-	accessExpirationTime := time.Now().Add(5 * time.Second)
+	accessExpirationTime := time.Now().Add(15 * time.Minute)
 	refreshExpirationTime := time.Now().Add(7 * 24 * time.Hour) // 7 days
 
 	// Generate Access Token
@@ -120,7 +120,7 @@ func (controller *LoginControllerImpl) Refresh(writer http.ResponseWriter, reque
 	}
 
 	// Define expiration times
-	accessExpirationTime := time.Now().Add(5 * time.Second)
+	accessExpirationTime := time.Now().Add(15 * time.Minute)
 	refreshExpirationTime := time.Now().Add(7 * 24 * time.Hour) // 7 days
 
 	userId := claims["userId"]
