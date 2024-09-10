@@ -71,6 +71,15 @@ func ToCartResponse(cart domain.Cart) web.CartResponse {
 	}
 }
 
+func ToCartResponses(carts []domain.Cart) []web.CartResponse {
+	var cartResponse []web.CartResponse
+	for _, cart := range carts {
+		cartResponse = append(cartResponse, ToCartResponse(cart))
+	}
+
+	return cartResponse
+}
+
 func ToCartItemResponse(cartItem domain.CartItem) web.CartItemResponse {
 	return web.CartItemResponse{
 		Id:         cartItem.Id,
