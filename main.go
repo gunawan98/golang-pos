@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	"bytes"
 	"io"
 	"net/http"
 	"os"
@@ -86,15 +86,27 @@ func main() {
 
 	helper.PanicIfError(err)
 }
+
+type CustomResponseWriter struct {
+	http.ResponseWriter
+	body *bytes.Buffer
+}
+
+func (w *CustomResponseWriter) Write(b []byte) (int, error) {
+	w.body.Write(b) // Capture the response body in the buffer
+	return w.ResponseWriter.Write(b)
+}
+
 func WrapHandler(f http.Handler) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-		var response string
-		res.Header().Set("Content-Type", "application/json")
-		encoder := json.NewEncoder(res)
-		err := encoder.Encode(response)
-		if err != nil {
-			log.Logger.Error(err.Error())
+		crw := &CustomResponseWriter{
+			ResponseWriter: res,
+			body:           bytes.NewBuffer(nil),
 		}
+
+		// Call the next handler, which will write to our custom response writer
+		f.ServeHTTP(crw, req)
+
 		bytedata, err := io.ReadAll(req.Body)
 		reqBodyString := string(bytedata)
 		if err != nil {
@@ -102,10 +114,11 @@ func WrapHandler(f http.Handler) http.HandlerFunc {
 		}
 		responseTime := time.Now()
 		requestTime := time.Now()
+		// set request response
 		fields := []zapcore.Field{
 			zap.String("unique_id", uuid.New().String()),
 			zap.String("request", reqBodyString),
-			zap.String("response", string(response)),
+			zap.String("response", string(crw.body.String())),
 		}
 		if req != nil {
 			fields = append(fields, zap.String("request_time", requestTime.String()))
