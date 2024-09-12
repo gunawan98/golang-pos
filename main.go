@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/gunawan98/golang-restfull-api/controller"
 	"github.com/gunawan98/golang-restfull-api/helper"
 	"github.com/gunawan98/golang-restfull-api/middleware"
+	"github.com/gunawan98/golang-restfull-api/middleware/log"
 	"github.com/gunawan98/golang-restfull-api/repository"
 	"github.com/gunawan98/golang-restfull-api/service"
 	"github.com/rs/cors"
@@ -19,6 +19,8 @@ import (
 
 func main() {
 	config.LoadEnvVars()
+
+	log.LoadLogger()
 	db := config.MySQLConnect()
 
 	validate := validator.New()
@@ -64,13 +66,15 @@ func main() {
 		port = "8080" // Default to 8080 if PORT is not set
 	}
 
-	fmt.Printf("Server is listening on http://localhost:%s\n", port)
+	log.Logger.Info("Server is listening on http://localhost: " + port)
+	// fmt.Printf("Server is listening on http://localhost:%s\n", port)
 
 	server := http.Server{
 		Addr:    ":" + port,
-		Handler: corsHandler,
+		Handler: log.WrapHandler(corsHandler),
 	}
 
 	err := server.ListenAndServe()
+
 	helper.PanicIfError(err)
 }
