@@ -10,7 +10,6 @@ import (
 var Logger *zap.Logger
 
 func initialLogger() *zap.Logger {
-
 	encoderCfg := zap.NewProductionEncoderConfig()
 	leves := zap.NewAtomicLevelAt(zap.InfoLevel)
 	if os.Getenv("APP_ENV") == "development" {
