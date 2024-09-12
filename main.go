@@ -99,26 +99,37 @@ func (w *CustomResponseWriter) Write(b []byte) (int, error) {
 
 func WrapHandler(f http.Handler) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
+		// Clone the request body to avoid losing it after reading
+		var reqBodyClone []byte
+		if req.Body != nil {
+			bodyBytes, err := io.ReadAll(req.Body)
+			if err != nil {
+				log.Logger.Error("Failed to read request body: " + err.Error())
+			}
+			reqBodyClone = bodyBytes
+
+			// Restore the request body so the next handler can read it
+			req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+		}
+
+		// Use CustomResponseWriter to capture the response body
 		crw := &CustomResponseWriter{
 			ResponseWriter: res,
 			body:           bytes.NewBuffer(nil),
 		}
 
-		// Call the next handler, which will write to our custom response writer
+		// Call the next handler
 		f.ServeHTTP(crw, req)
 
-		bytedata, err := io.ReadAll(req.Body)
-		reqBodyString := string(bytedata)
-		if err != nil {
-			log.Logger.Error(err.Error())
-		}
+		// Log the request and response
 		responseTime := time.Now()
 		requestTime := time.Now()
+
 		// set request response
 		fields := []zapcore.Field{
 			zap.String("unique_id", uuid.New().String()),
-			zap.String("request", reqBodyString),
-			zap.String("response", string(crw.body.String())),
+			zap.String("request", string(reqBodyClone)),
+			zap.String("response", crw.body.String()),
 		}
 		if req != nil {
 			fields = append(fields, zap.String("request_time", requestTime.String()))
@@ -129,6 +140,6 @@ func WrapHandler(f http.Handler) http.HandlerFunc {
 			processingTime := time.Since(requestTime)
 			fields = append(fields, zap.Int("processing_time_nano_second", int(processingTime.Nanoseconds())))
 		}
-		log.Logger.Info("log global request and response ", fields...)
+		log.Logger.Info("log global request and response", fields...)
 	}
 }
