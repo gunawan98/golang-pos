@@ -97,6 +97,8 @@ func ToPurchaseResponse(purchase domain.Purchase) web.PurchaseResponse {
 		CartID:        purchase.CartID,
 		CashierID:     purchase.CashierID,
 		TotalAmount:   purchase.TotalAmount,
+		Paid:          purchase.Paid,
+		CashBack:      purchase.CashBack,
 		PaymentMethod: purchase.PaymentMethod,
 		CreatedAt:     purchase.CreatedAt,
 	}

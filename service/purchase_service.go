@@ -7,5 +7,6 @@ import (
 )
 
 type PurchaseService interface {
-	ConfirmPayment(ctx context.Context, request web.PurchaseCreateRequest) web.PurchaseResponse
+	ConfirmPayment(ctx context.Context, request web.PurchaseCreateRequest, userId float64) (web.PurchaseResponse, []web.CartItemWithProductResponse)
+	GetFinishedPayment(ctx context.Context, userId float64, cartId int) (web.PurchaseResponse, []web.CartItemWithProductResponse)
 }

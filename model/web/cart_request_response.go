@@ -27,3 +27,13 @@ type CartItemResponse struct {
 	UnitPrice  int `json:"unit_price"`
 	TotalPrice int `json:"total_price"`
 }
+
+type CartItemWithProductResponse struct {
+	Id          int    `json:"id"`
+	CartID      int    `json:"cart_id"`
+	ProductID   int    `json:"product_id"`
+	ProductName string `json:"product_name"`
+	Quantity    int    `json:"quantity"`
+	UnitPrice   int    `json:"unit_price"`
+	TotalPrice  int    `json:"total_price"`
+}

@@ -38,6 +38,16 @@ func (service *CartServiceImpl) AvailableCart(ctx context.Context, userId float6
 	return helper.ToCartResponses(listCart)
 }
 
+func (service *CartServiceImpl) FinishedCart(ctx context.Context, userId float64) []web.CartResponse {
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	listCart := service.CartRepository.FindFinishedCart(ctx, tx, int(userId))
+
+	return helper.ToCartResponses(listCart)
+}
+
 func (service *CartServiceImpl) CreateNewCart(ctx context.Context, request web.CartCreateRequest, userId float64) web.CartResponse {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
@@ -110,7 +120,7 @@ func (service *CartServiceImpl) AddProductToCart(ctx context.Context, userId flo
 	return helper.ToCartItemResponse(cartItem)
 }
 
-func (service *CartServiceImpl) GetCartDetails(ctx context.Context, cartId int) (web.CartResponse, []web.CartItemResponse) {
+func (service *CartServiceImpl) GetCartDetails(ctx context.Context, cartId int) (web.CartResponse, []web.CartItemWithProductResponse) {
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
@@ -120,17 +130,18 @@ func (service *CartServiceImpl) GetCartDetails(ctx context.Context, cartId int) 
 		panic(exception.NewNotFoundError(errGetCart.Error()))
 	}
 
-	cartItems := service.CartRepository.GetItemsByCartId(ctx, tx, cartId)
+	cartItems := service.CartRepository.GetItemsWithProductByCartId(ctx, tx, cartId)
 
-	var items []web.CartItemResponse
+	var items []web.CartItemWithProductResponse
 	for _, item := range cartItems {
-		items = append(items, web.CartItemResponse{
-			Id:         item.Id,
-			CartID:     item.CartID,
-			ProductID:  item.ProductID,
-			Quantity:   item.Quantity,
-			UnitPrice:  item.UnitPrice,
-			TotalPrice: item.TotalPrice,
+		items = append(items, web.CartItemWithProductResponse{
+			Id:          item.Id,
+			CartID:      item.CartID,
+			ProductID:   item.ProductID,
+			ProductName: item.ProductName,
+			Quantity:    item.Quantity,
+			UnitPrice:   item.UnitPrice,
+			TotalPrice:  item.TotalPrice,
 		})
 	}
 

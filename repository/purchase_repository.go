@@ -9,4 +9,5 @@ import (
 
 type PurchaseRepository interface {
 	AddPurchase(ctx context.Context, tx *sql.Tx, purchase domain.Purchase) domain.Purchase
+	GetPurchaseByCartId(ctx context.Context, tx *sql.Tx, userId int, cartId int) (domain.Purchase, error)
 }

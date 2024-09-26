@@ -32,7 +32,7 @@ func NewPurchaseService(purchaseRepository repository.PurchaseRepository, cartRe
 	}
 }
 
-func (service *PurchaseServiceImpl) ConfirmPayment(ctx context.Context, request web.PurchaseCreateRequest) web.PurchaseResponse {
+func (service *PurchaseServiceImpl) ConfirmPayment(ctx context.Context, request web.PurchaseCreateRequest, userId float64) (web.PurchaseResponse, []web.CartItemWithProductResponse) {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 
@@ -40,11 +40,31 @@ func (service *PurchaseServiceImpl) ConfirmPayment(ctx context.Context, request 
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
+	// Get cart by ID to check if it is completed
+	cart, err := service.CartRepository.GetCartById(ctx, tx, request.CartID)
+	helper.PanicIfError(err)
+
+	// Validate if the cart is already completed
+	if cart.Completed {
+		panic(exception.NewBadRequestError("Transaction has been completed previously"))
+	}
+
 	// Retrieve cart items
-	cartItems := service.CartRepository.GetItemsByCartId(ctx, tx, request.CartID)
+	cartItems := service.CartRepository.GetItemsWithProductByCartId(ctx, tx, request.CartID)
 
 	// Update stock for each product
+	var resCartItems []web.CartItemWithProductResponse
 	for _, item := range cartItems {
+		resCartItems = append(resCartItems, web.CartItemWithProductResponse{
+			Id:          item.Id,
+			CartID:      item.CartID,
+			ProductID:   item.ProductID,
+			ProductName: item.ProductName,
+			Quantity:    item.Quantity,
+			UnitPrice:   item.UnitPrice,
+			TotalPrice:  item.TotalPrice,
+		})
+
 		product, err := service.ProductRepository.FindById(ctx, tx, item.ProductID)
 		helper.PanicIfError(err)
 
@@ -65,16 +85,66 @@ func (service *PurchaseServiceImpl) ConfirmPayment(ctx context.Context, request 
 	for _, item := range cartItems {
 		totalAmount += item.TotalPrice
 	}
+	if totalAmount > request.Paid {
+		panic(exception.NewBadRequestError("Money is not enough"))
+	}
+
+	// Calculate cashback
+	cashBack := 0
+	if request.Paid > totalAmount {
+		cashBack = request.Paid - totalAmount
+	}
 
 	// Create purchase record
 	purchase := domain.Purchase{
 		CartID:        request.CartID,
-		CashierID:     request.CashierID,
+		CashierID:     int(userId),
 		TotalAmount:   totalAmount,
+		Paid:          request.Paid,
+		CashBack:      cashBack,
 		PaymentMethod: request.PaymentMethod,
 		CreatedAt:     time.Now(),
 	}
 	purchase = service.PurchaseRepository.AddPurchase(ctx, tx, purchase)
 
-	return helper.ToPurchaseResponse(purchase)
+	return helper.ToPurchaseResponse(purchase), resCartItems
+}
+
+func (service *PurchaseServiceImpl) GetFinishedPayment(ctx context.Context, userId float64, cartId int) (web.PurchaseResponse, []web.CartItemWithProductResponse) {
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	// Get cart by ID to check if it is completed
+	cart, err := service.CartRepository.GetCartById(ctx, tx, cartId)
+	helper.PanicIfError(err)
+
+	// Validate if the cart is already completed
+	if !cart.Completed {
+		panic(exception.NewBadRequestError("Cart has not been paid"))
+	}
+
+	// Retrieve cart items
+	cartItems := service.CartRepository.GetItemsWithProductByCartId(ctx, tx, cartId)
+
+	// Update stock for each product
+	var resCartItems []web.CartItemWithProductResponse
+	for _, item := range cartItems {
+		resCartItems = append(resCartItems, web.CartItemWithProductResponse{
+			Id:          item.Id,
+			CartID:      item.CartID,
+			ProductID:   item.ProductID,
+			ProductName: item.ProductName,
+			Quantity:    item.Quantity,
+			UnitPrice:   item.UnitPrice,
+			TotalPrice:  item.TotalPrice,
+		})
+	}
+
+	purchase, errGetPurchase := service.PurchaseRepository.GetPurchaseByCartId(ctx, tx, int(userId), cartId)
+	if errGetPurchase != nil {
+		panic(exception.NewNotFoundError(errGetPurchase.Error()))
+	}
+
+	return helper.ToPurchaseResponse(purchase), resCartItems
 }

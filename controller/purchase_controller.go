@@ -8,4 +8,5 @@ import (
 
 type PurchaseController interface {
 	ConfirmPayment(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
+	GetFinishedPayment(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
 }

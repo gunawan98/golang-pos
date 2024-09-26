@@ -22,8 +22,10 @@ CREATE TABLE `cart` (
 CREATE TABLE `purchase` (
   `id` int NOT NULL AUTO_INCREMENT,
   `cart_id` int DEFAULT NULL,
-  `cashier_id` int DEFAULT NULL,
+  `cashier_id` int NOT NULL,
   `total_amount` int NOT NULL,
+  `paid` int NOT NULL,
+  `cash_back` int DEFAULT NULL,
   `payment_method` enum('cash','credit-card','ewallet','other') NOT NULL,
   `created_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),

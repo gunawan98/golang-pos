@@ -39,10 +39,12 @@ func NewRouter(loginController controller.LoginController, categoryController co
 	router.DELETE("/api/user/:userId", userController.Delete)
 
 	router.GET("/api/cart", cartController.AvailableCart)
+	router.GET("/api/cart/finished", cartController.FinishedCart)
 	router.POST("/api/cart", cartController.CreateCart)
 	router.POST("/api/cart-item/:cartId", cartController.AddItem)
 	router.GET("/api/cart-item/:cartId", cartController.GetCartDetails)
 
+	router.GET("/api/purchase/:cartId", purchaseController.GetFinishedPayment)
 	router.POST("/api/purchase", purchaseController.ConfirmPayment)
 
 	router.PanicHandler = exception.ErrorHandler
