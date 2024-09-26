@@ -121,3 +121,42 @@ func (repository *CartRepositoryImpl) FindAvailableCart(ctx context.Context, tx 
 
 	return carts
 }
+
+func (repository *CartRepositoryImpl) FindFinishedCart(ctx context.Context, tx *sql.Tx, userId int) []domain.Cart {
+	SQL := "SELECT id, cashier_id, completed, created_at FROM cart WHERE cashier_id=? AND completed=true"
+	rows, err := tx.QueryContext(ctx, SQL, userId)
+	helper.PanicIfError(err)
+	defer rows.Close()
+
+	var carts []domain.Cart
+	for rows.Next() {
+		cart := domain.Cart{}
+		err := rows.Scan(&cart.Id, &cart.CashierID, &cart.Completed, &cart.CreatedAt)
+		helper.PanicIfError(err)
+		carts = append(carts, cart)
+	}
+
+	return carts
+}
+
+func (repository *CartRepositoryImpl) GetItemsWithProductByCartId(ctx context.Context, tx *sql.Tx, cartId int) []domain.CartItemWithProduct {
+	SQL := `
+			SELECT ci.id, ci.cart_id, ci.product_id, ci.quantity, ci.unit_price, ci.total_price, p.name 
+			FROM cart_item ci
+			JOIN product p ON ci.product_id = p.id
+			WHERE ci.cart_id = ?
+	`
+	rows, err := tx.QueryContext(ctx, SQL, cartId)
+	helper.PanicIfError(err)
+	defer rows.Close()
+
+	var cartItems []domain.CartItemWithProduct
+	for rows.Next() {
+		var cartItem domain.CartItemWithProduct
+		err := rows.Scan(&cartItem.Id, &cartItem.CartID, &cartItem.ProductID, &cartItem.Quantity, &cartItem.UnitPrice, &cartItem.TotalPrice, &cartItem.ProductName)
+		helper.PanicIfError(err)
+		cartItems = append(cartItems, cartItem)
+	}
+
+	return cartItems
+}

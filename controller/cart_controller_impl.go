@@ -42,6 +42,28 @@ func (controller *CartControllerImpl) AvailableCart(writer http.ResponseWriter, 
 	helper.WriteToResponseBody(writer, webResponse)
 }
 
+func (controller *CartControllerImpl) FinishedCart(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	userId, ok := request.Context().Value(globalctx.UserIDKey()).(float64)
+	if !ok {
+		webResponse := web.WebResponse{
+			Code:   http.StatusUnauthorized,
+			Status: "Unauthorized",
+		}
+
+		helper.WriteToResponseBody(writer, webResponse)
+		return
+	}
+
+	cartResponse := controller.CartService.FinishedCart(request.Context(), userId)
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   cartResponse,
+	}
+
+	helper.WriteToResponseBody(writer, webResponse)
+}
+
 func (controller *CartControllerImpl) CreateCart(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	userId, ok := request.Context().Value(globalctx.UserIDKey()).(float64)
 	if !ok {
@@ -104,8 +126,8 @@ func (controller *CartControllerImpl) GetCartDetails(writer http.ResponseWriter,
 	cart, items := controller.CartService.GetCartDetails(request.Context(), cartId)
 
 	data := map[string]interface{}{
-		"Cart":  cart,
-		"Items": items,
+		"cart":  cart,
+		"items": items,
 	}
 
 	webResponse := web.WebResponse{
@@ -115,5 +137,4 @@ func (controller *CartControllerImpl) GetCartDetails(writer http.ResponseWriter,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
-
 }
