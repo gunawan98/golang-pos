@@ -44,6 +44,12 @@ func (repository *CartRepositoryImpl) GetCartById(ctx context.Context, tx *sql.T
 	}
 }
 
+func (repository *CartRepositoryImpl) DeleteCart(ctx context.Context, tx *sql.Tx, cartId int) {
+	SQL := "delete from cart where id = ?"
+	_, err := tx.ExecContext(ctx, SQL, cartId)
+	helper.PanicIfError(err)
+}
+
 func (repository *CartRepositoryImpl) AddItemToCart(ctx context.Context, tx *sql.Tx, cartItem domain.CartItem) domain.CartItem {
 	SQL := "INSERT INTO cart_item (cart_id, product_id, quantity, unit_price, total_price) VALUES (?, ?, ?, ?, ?)"
 	result, err := tx.ExecContext(ctx, SQL, cartItem.CartID, cartItem.ProductID, cartItem.Quantity, cartItem.UnitPrice, cartItem.TotalPrice)
@@ -80,6 +86,12 @@ func (repository *CartRepositoryImpl) UpdateCartItem(ctx context.Context, tx *sq
 	SQL := "UPDATE cart_item SET quantity = ?, total_price = ? WHERE id = ?"
 	_, err := tx.ExecContext(ctx, SQL, cartItem.Quantity, cartItem.TotalPrice, cartItem.Id)
 	return err
+}
+
+func (repository *CartRepositoryImpl) DeleteCartItem(ctx context.Context, tx *sql.Tx, cartItemId int) {
+	SQL := "delete from cart_item where id = ?"
+	_, err := tx.ExecContext(ctx, SQL, cartItemId)
+	helper.PanicIfError(err)
 }
 
 func (repository *CartRepositoryImpl) GetItemsByCartId(ctx context.Context, tx *sql.Tx, cartId int) []domain.CartItem {
