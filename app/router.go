@@ -41,8 +41,11 @@ func NewRouter(loginController controller.LoginController, categoryController co
 	router.GET("/api/cart", cartController.AvailableCart)
 	router.GET("/api/cart/finished", cartController.FinishedCart)
 	router.POST("/api/cart", cartController.CreateCart)
+	router.DELETE("/api/cart/:cartId", cartController.DeleteCart)
 	router.POST("/api/cart-item/:cartId", cartController.AddItem)
+	router.PUT("/api/cart-item/:cartId/:cartItemId", cartController.UpdateItem)
 	router.GET("/api/cart-item/:cartId", cartController.GetCartDetails)
+	router.DELETE("/api/cart-item/:cartItemId", cartController.DeleteCartItem)
 
 	router.GET("/api/purchase/:cartId", purchaseController.GetFinishedPayment)
 	router.POST("/api/purchase", purchaseController.ConfirmPayment)

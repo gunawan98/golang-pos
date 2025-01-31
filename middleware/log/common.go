@@ -2,6 +2,7 @@ package log
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -66,5 +67,6 @@ func WrapHandler(f http.Handler) http.HandlerFunc {
 			fields = append(fields, zap.Int("processing_time_nano_second", int(processingTime.Nanoseconds())))
 		}
 		Logger.Info("log global request and response", fields...)
+		fmt.Println("=================================")
 	}
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gunawan98/golang-restfull-api/exception"
@@ -48,17 +49,14 @@ func (service *CartServiceImpl) FinishedCart(ctx context.Context, userId float64
 	return helper.ToCartResponses(listCart)
 }
 
-func (service *CartServiceImpl) CreateNewCart(ctx context.Context, request web.CartCreateRequest, userId float64) web.CartResponse {
-	err := service.Validate.Struct(request)
-	helper.PanicIfError(err)
-
+func (service *CartServiceImpl) CreateNewCart(ctx context.Context, userId float64) web.CartResponse {
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
 	cart := domain.Cart{
 		CashierID: int(userId),
-		Completed: request.Completed,
+		Completed: false,
 	}
 
 	cart = service.CartRepository.CreateCart(ctx, tx, cart)
@@ -120,6 +118,38 @@ func (service *CartServiceImpl) AddProductToCart(ctx context.Context, userId flo
 	return helper.ToCartItemResponse(cartItem)
 }
 
+func (service *CartServiceImpl) UpdateProductInCart(ctx context.Context, userId float64, cartId int, cartItemId int, request web.CartItemUpdateRequest) web.CartItemResponse {
+	err := service.Validate.Struct(request)
+	helper.PanicIfError(err)
+
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	getCart, errGetCart := service.CartRepository.GetCartById(ctx, tx, cartId)
+	if errGetCart != nil {
+		panic(exception.NewNotFoundError(errGetCart.Error()))
+	}
+
+	if int(userId) != getCart.CashierID {
+		panic(exception.NewNotFoundError("Cart ID not available"))
+	}
+
+	// Cek apakah item sudah ada dalam keranjang
+	cartItem, errFind := service.CartRepository.FindItemByCartAndProduct(ctx, tx, cartId, request.ProductID)
+	if errFind == nil {
+		cartItem.Quantity = request.Quantity
+		cartItem.TotalPrice = cartItem.UnitPrice * cartItem.Quantity
+		errUpdate := service.CartRepository.UpdateCartItem(ctx, tx, cartItem)
+		helper.PanicIfError(errUpdate)
+		fmt.Println("Halooooo: ", cartItem)
+	} else {
+		helper.PanicIfError(errFind)
+	}
+
+	return helper.ToCartItemResponse(cartItem)
+}
+
 func (service *CartServiceImpl) GetCartDetails(ctx context.Context, cartId int) (web.CartResponse, []web.CartItemWithProductResponse) {
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
@@ -153,4 +183,42 @@ func (service *CartServiceImpl) GetCartDetails(ctx context.Context, cartId int) 
 	}
 
 	return resCart, items
+}
+
+func (service *CartServiceImpl) DeleteCart(ctx context.Context, userId float64, cartId int) {
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	cart, err := service.CartRepository.GetCartById(ctx, tx, cartId)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	if int(userId) != cart.CashierID {
+		panic(exception.NewBadRequestError("Access denied - forbidden"))
+	}
+
+	if cart.Completed {
+		panic(exception.NewBadRequestError("Cannot delete a completed cart"))
+	}
+
+	service.CartRepository.DeleteCart(ctx, tx, cart.Id)
+}
+
+func (service *CartServiceImpl) DeleteCartItem(ctx context.Context, userId float64, cartItemId int) {
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	// cart, err := service.CartRepository.GetCartById(ctx, tx, cartItemId)
+	// if err != nil {
+	// 	panic(exception.NewNotFoundError(err.Error()))
+	// }
+
+	// if int(userId) != cart.CashierID {
+	// 	panic(exception.NewBadRequestError("Access denied - forbidden"))
+	// }
+
+	service.CartRepository.DeleteCartItem(ctx, tx, cartItemId)
 }

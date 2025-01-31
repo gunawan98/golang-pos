@@ -76,14 +76,36 @@ func (controller *CartControllerImpl) CreateCart(writer http.ResponseWriter, req
 		return
 	}
 
-	cartCreateRequest := web.CartCreateRequest{}
-	helper.ReadFromRequestBody(request, &cartCreateRequest)
-
-	cartResponse := controller.CartService.CreateNewCart(request.Context(), cartCreateRequest, userId)
+	cartResponse := controller.CartService.CreateNewCart(request.Context(), userId)
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "OK",
 		Data:   cartResponse,
+	}
+
+	helper.WriteToResponseBody(writer, webResponse)
+}
+
+func (controller *CartControllerImpl) DeleteCart(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	userId, ok := request.Context().Value(globalctx.UserIDKey()).(float64)
+	if !ok {
+		webResponse := web.WebResponse{
+			Code:   http.StatusUnauthorized,
+			Status: "Unauthorized",
+		}
+
+		helper.WriteToResponseBody(writer, webResponse)
+		return
+	}
+
+	cartId := params.ByName("cartId")
+	id, err := strconv.Atoi(cartId)
+	helper.PanicIfError(err)
+
+	controller.CartService.DeleteCart(request.Context(), userId, id)
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
@@ -118,6 +140,39 @@ func (controller *CartControllerImpl) AddItem(writer http.ResponseWriter, reques
 	helper.WriteToResponseBody(writer, webResponse)
 }
 
+func (controller *CartControllerImpl) UpdateItem(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	userId, ok := request.Context().Value(globalctx.UserIDKey()).(float64)
+	if !ok {
+		webResponse := web.WebResponse{
+			Code:   http.StatusUnauthorized,
+			Status: "Unauthorized",
+		}
+
+		helper.WriteToResponseBody(writer, webResponse)
+		return
+	}
+
+	cartItemUpdateRequest := web.CartItemUpdateRequest{}
+	helper.ReadFromRequestBody(request, &cartItemUpdateRequest)
+
+	getCartId := params.ByName("cartId")
+	cartId, err := strconv.Atoi(getCartId)
+	helper.PanicIfError(err)
+
+	getCartItemId := params.ByName("cartItemId")
+	cartItemId, err := strconv.Atoi(getCartItemId)
+	helper.PanicIfError(err)
+
+	cartResponse := controller.CartService.UpdateProductInCart(request.Context(), userId, cartId, cartItemId, cartItemUpdateRequest)
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   cartResponse,
+	}
+
+	helper.WriteToResponseBody(writer, webResponse)
+}
+
 func (controller *CartControllerImpl) GetCartDetails(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	getCartId := params.ByName("cartId")
 	cartId, err := strconv.Atoi(getCartId)
@@ -134,6 +189,31 @@ func (controller *CartControllerImpl) GetCartDetails(writer http.ResponseWriter,
 		Code:   200,
 		Status: "OK",
 		Data:   data,
+	}
+
+	helper.WriteToResponseBody(writer, webResponse)
+}
+
+func (controller *CartControllerImpl) DeleteCartItem(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	userId, ok := request.Context().Value(globalctx.UserIDKey()).(float64)
+	if !ok {
+		webResponse := web.WebResponse{
+			Code:   http.StatusUnauthorized,
+			Status: "Unauthorized",
+		}
+
+		helper.WriteToResponseBody(writer, webResponse)
+		return
+	}
+
+	cartItemId := params.ByName("cartItemId")
+	id, err := strconv.Atoi(cartItemId)
+	helper.PanicIfError(err)
+
+	controller.CartService.DeleteCartItem(request.Context(), userId, id)
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
