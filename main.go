@@ -37,6 +37,10 @@ func main() {
 	productService := service.NewProductService(productRepository, db, validate)
 	productController := controller.NewProductController(productService)
 
+	productImageRepository := repository.NewProductImageRepository()
+	productImageService := service.NewProductImageService(productImageRepository, db, validate)
+	productImageController := controller.NewProductImageController(productImageService)
+
 	cartRepository := repository.NewCartRepository()
 	cartService := service.NewCartService(cartRepository, productRepository, db, validate)
 	cartController := controller.NewCartController(cartService)
@@ -47,7 +51,7 @@ func main() {
 
 	loginController := controller.NewLoginController(userService)
 
-	router := app.NewRouter(loginController, categoryController, productController, userController, cartController, purchaseController)
+	router := app.NewRouter(loginController, categoryController, productController, userController, cartController, purchaseController, productImageController)
 
 	// Protect routes with the middleware
 	protectedRouter := middleware.NewAuthMiddleware(router)

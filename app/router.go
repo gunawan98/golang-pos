@@ -13,7 +13,7 @@ func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	fmt.Fprint(w, "Welcome To test production!\n")
 }
 
-func NewRouter(loginController controller.LoginController, categoryController controller.CategoryController, productController controller.ProductController, userController controller.UserController, cartController controller.CartController, purchaseController controller.PurchaseController) *httprouter.Router {
+func NewRouter(loginController controller.LoginController, categoryController controller.CategoryController, productController controller.ProductController, userController controller.UserController, cartController controller.CartController, purchaseController controller.PurchaseController, productImageController controller.ProductImageController) *httprouter.Router {
 	router := httprouter.New()
 
 	router.GET("/", Index)
@@ -31,6 +31,10 @@ func NewRouter(loginController controller.LoginController, categoryController co
 	router.POST("/api/product", productController.Create)
 	router.PUT("/api/product/:productId", productController.Update)
 	router.DELETE("/api/product/:productId", productController.Delete)
+
+	router.GET("/api/product/:productId/image", productImageController.FindByProductId)
+	router.POST("/api/product/:productId/image", productImageController.AddImage)
+	router.DELETE("/api/image/:imageId", productImageController.DeleteImage)
 
 	router.GET("/api/user", userController.FindAll)
 	router.GET("/api/user/:userId", userController.FindById)

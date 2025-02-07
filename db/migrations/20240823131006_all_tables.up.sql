@@ -77,3 +77,12 @@ CREATE TABLE `product_category` (
   CONSTRAINT `product_category_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE,
   CONSTRAINT `product_category_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `product_image` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `product_id` int NOT NULL,
+  `url` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `image_product_FK` (`product_id`),
+  CONSTRAINT `image_product_FK` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

@@ -103,3 +103,21 @@ func ToPurchaseResponse(purchase domain.Purchase) web.PurchaseResponse {
 		CreatedAt:     purchase.CreatedAt,
 	}
 }
+
+// PRODUCT IMAGE RESPONSE ###
+func ToImageResponse(image domain.ProductImage) web.ProductImageResponse {
+	return web.ProductImageResponse{
+		Id:        image.Id,
+		ProductId: image.ProductId,
+		Url:       image.Url,
+	}
+}
+
+func ToImageResponses(images []domain.ProductImage) []web.ProductImageResponse {
+	var imageResponses []web.ProductImageResponse
+	for _, image := range images {
+		imageResponses = append(imageResponses, ToImageResponse(image))
+	}
+
+	return imageResponses
+}
