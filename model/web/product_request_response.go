@@ -18,10 +18,11 @@ type ProductUpdateRequest struct {
 }
 
 type ProductResponse struct {
-	Id       int    `json:"id"`
-	Name     string `json:"name"`
-	Barcode  string `json:"barcode"`
-	Stock    int    `json:"stock"`
-	Price    int    `json:"price"`
-	Discount *int   `json:"discount"`
+	Id       int      `json:"id"`
+	Name     string   `json:"name"`
+	Barcode  string   `json:"barcode"`
+	Stock    int      `json:"stock"`
+	Price    int      `json:"price"`
+	Discount *int     `json:"discount"`
+	Images   []string `json:"images"`
 }

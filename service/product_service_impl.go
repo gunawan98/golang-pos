@@ -13,16 +13,18 @@ import (
 )
 
 type ProductServiceImpl struct {
-	ProductRepository repository.ProductRepository
-	DB                *sql.DB
-	Validate          *validator.Validate
+	ProductRepository      repository.ProductRepository
+	ProductImageRepository repository.ProductImageRepository
+	DB                     *sql.DB
+	Validate               *validator.Validate
 }
 
-func NewProductService(productRepository repository.ProductRepository, DB *sql.DB, validate *validator.Validate) ProductService {
+func NewProductService(productRepository repository.ProductRepository, productImageRepository repository.ProductImageRepository, DB *sql.DB, validate *validator.Validate) ProductService {
 	return &ProductServiceImpl{
-		ProductRepository: productRepository,
-		DB:                DB,
-		Validate:          validate,
+		ProductRepository:      productRepository,
+		ProductImageRepository: productImageRepository,
+		DB:                     DB,
+		Validate:               validate,
 	}
 }
 
@@ -119,5 +121,12 @@ func (service *ProductServiceImpl) FindAll(ctx context.Context) []web.ProductRes
 
 	products := service.ProductRepository.FindAll(ctx, tx)
 
-	return helper.ToProductResponses(products)
+	var productResponses []web.ProductResponse
+	for _, product := range products {
+		images := service.ProductImageRepository.FindByProductId(ctx, tx, product.Id)
+		productResponse := helper.ToProductResponseWithImages(product, images)
+		productResponses = append(productResponses, productResponse)
+	}
+
+	return productResponses
 }

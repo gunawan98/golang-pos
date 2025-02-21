@@ -33,13 +33,13 @@ func main() {
 	categoryService := service.NewCategoryService(categoryRepository, db, validate)
 	categoryController := controller.NewCategoryController(categoryService)
 
-	productRepository := repository.NewProductRepository()
-	productService := service.NewProductService(productRepository, db, validate)
-	productController := controller.NewProductController(productService)
-
 	productImageRepository := repository.NewProductImageRepository()
 	productImageService := service.NewProductImageService(productImageRepository, db, validate)
 	productImageController := controller.NewProductImageController(productImageService)
+
+	productRepository := repository.NewProductRepository()
+	productService := service.NewProductService(productRepository, productImageRepository, db, validate)
+	productController := controller.NewProductController(productService)
 
 	cartRepository := repository.NewCartRepository()
 	cartService := service.NewCartService(cartRepository, productRepository, db, validate)

@@ -49,3 +49,19 @@ func (repository *ProductImageRepositoryImpl) FindByProductId(ctx context.Contex
 
 	return images
 }
+
+func (repository *ProductImageRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, imageId int) (domain.ProductImage, error) {
+	SQL := "SELECT id, product_id, url FROM product_image WHERE id = ?"
+	rows, err := tx.QueryContext(ctx, SQL, imageId)
+	helper.PanicIfError(err)
+	defer rows.Close()
+
+	image := domain.ProductImage{}
+	if rows.Next() {
+		err := rows.Scan(&image.Id, &image.ProductId, &image.Url)
+		helper.PanicIfError(err)
+		return image, nil
+	} else {
+		return image, sql.ErrNoRows
+	}
+}

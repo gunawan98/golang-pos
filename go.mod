@@ -11,12 +11,17 @@ require (
 	golang.org/x/crypto v0.19.0
 )
 
-require github.com/rs/cors v1.11.1
+require (
+	github.com/cloudinary/cloudinary-go/v2 v2.9.1
+	github.com/google/uuid v1.6.0
+	github.com/rs/cors v1.11.1
+	go.uber.org/zap v1.27.0
+)
 
 require (
-	github.com/google/uuid v1.6.0 // indirect
+	github.com/creasty/defaults v1.7.0 // indirect
+	github.com/gorilla/schema v1.4.1 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
-	go.uber.org/zap v1.27.0 // indirect
 )
 
 require (

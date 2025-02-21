@@ -53,6 +53,15 @@ func (controller *ProductImageControllerImpl) DeleteImage(writer http.ResponseWr
 	id, err := strconv.Atoi(imageId)
 	helper.PanicIfError(err)
 
+	// Retrieve the image URL from the database
+	imageResponse := controller.ProductImageService.FindById(request.Context(), id)
+	imageURL := imageResponse.Url
+
+	// Delete the image from Cloudinary
+	err = helper.DeleteFile(imageURL)
+	helper.PanicIfError(err)
+
+	// Delete the image record from the database
 	controller.ProductImageService.DeleteImage(request.Context(), id)
 	webResponse := web.WebResponse{
 		Code:   200,

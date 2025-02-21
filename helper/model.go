@@ -34,13 +34,32 @@ func ToProductResponse(product domain.Product) web.ProductResponse {
 	}
 }
 
-func ToProductResponses(products []domain.Product) []web.ProductResponse {
-	var productResponse []web.ProductResponse
-	for _, product := range products {
-		productResponse = append(productResponse, ToProductResponse(product))
+func ToProductResponseWithImages(product domain.Product, images []domain.ProductImage) web.ProductResponse {
+	imageUrls := make([]string, len(images))
+	for i, image := range images {
+		imageUrls[i] = image.Url
 	}
 
-	return productResponse
+	return web.ProductResponse{
+		Id:       product.Id,
+		Name:     product.Name,
+		Barcode:  product.Barcode,
+		Stock:    product.Stock,
+		Price:    product.Price,
+		Discount: product.Discount,
+		Images:   imageUrls,
+	}
+}
+
+func ToProductResponses(products []domain.Product, imageMap map[int][]domain.ProductImage) []web.ProductResponse {
+	var productResponses []web.ProductResponse
+	for _, product := range products {
+		images := imageMap[product.Id]
+		productResponse := ToProductResponseWithImages(product, images)
+		productResponses = append(productResponses, productResponse)
+	}
+
+	return productResponses
 }
 
 // USER RESPONSE ###

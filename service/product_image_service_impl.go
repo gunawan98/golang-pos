@@ -1,4 +1,3 @@
-// service/image_service_impl.go
 package service
 
 import (
@@ -6,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/gunawan98/golang-restfull-api/exception"
 	"github.com/gunawan98/golang-restfull-api/helper"
 	"github.com/gunawan98/golang-restfull-api/model/domain"
 	"github.com/gunawan98/golang-restfull-api/model/web"
@@ -49,6 +49,16 @@ func (service *ProductImageServiceImpl) DeleteImage(ctx context.Context, imageId
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
+	// Check if the image exists
+	_, err = service.ProductImageRepository.FindById(ctx, tx, imageId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			panic(exception.NewNotFoundError("Image not found"))
+		} else {
+			panic(err)
+		}
+	}
+
 	service.ProductImageRepository.Delete(ctx, tx, imageId)
 }
 
@@ -60,4 +70,17 @@ func (service *ProductImageServiceImpl) FindByProductId(ctx context.Context, pro
 	images := service.ProductImageRepository.FindByProductId(ctx, tx, productId)
 
 	return helper.ToImageResponses(images)
+}
+
+func (service *ProductImageServiceImpl) FindById(ctx context.Context, imageId int) web.ProductImageResponse {
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	image, err := service.ProductImageRepository.FindById(ctx, tx, imageId)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	return helper.ToImageResponse(image)
 }
