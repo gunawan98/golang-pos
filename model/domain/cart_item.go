@@ -6,5 +6,5 @@ type CartItem struct {
 
 type CartItemWithProduct struct {
 	Id, CartID, ProductID, Quantity, UnitPrice, TotalPrice int
-	ProductName                                            string
+	ProductName, ProductImage                              string
 }

@@ -11,7 +11,7 @@ type CartService interface {
 	FinishedCart(ctx context.Context, userId float64) []web.CartResponse
 	CreateNewCart(ctx context.Context, userId float64) web.CartResponse
 	AddProductToCart(ctx context.Context, userId float64, cartId int, request web.CartItemCreateRequest) web.CartItemResponse
-	UpdateProductInCart(ctx context.Context, userId float64, cartId int, cartItemId int, request web.CartItemUpdateRequest) web.CartItemResponse
+	UpdateProductInCart(ctx context.Context, userId float64, cartId int, request web.CartItemUpdateRequest) web.CartItemResponse
 	GetCartDetails(ctx context.Context, cartId int) (web.CartResponse, []web.CartItemWithProductResponse)
 	DeleteCart(ctx context.Context, userId float64, cartId int)
 	DeleteCartItem(ctx context.Context, userId float64, cartItemId int)

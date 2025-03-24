@@ -48,9 +48,10 @@ func validationError(writer http.ResponseWriter, _ *http.Request, err interface{
 		}
 
 		webResponse := web.WebResponse{
-			Code:   http.StatusBadRequest,
-			Status: "BAD REQUEST",
-			Data:   customErrors,
+			Success: false,
+			Code:    http.StatusBadRequest,
+			Message: "Bad request. Please check your request body.",
+			Data:    customErrors,
 		}
 
 		helper.WriteToResponseBody(writer, webResponse)
@@ -67,9 +68,10 @@ func dataAlreadyExistsError(writer http.ResponseWriter, _ *http.Request, err int
 		writer.WriteHeader(http.StatusConflict)
 
 		webResponse := web.WebResponse{
-			Code:   http.StatusConflict,
-			Status: "CONFLICT",
-			Data:   exception.Error,
+			Success: false,
+			Code:    http.StatusConflict,
+			Message: "Conflict data",
+			Data:    exception.Error,
 		}
 
 		helper.WriteToResponseBody(writer, webResponse)
@@ -86,9 +88,10 @@ func badRequestError(writer http.ResponseWriter, _ *http.Request, err interface{
 		writer.WriteHeader(http.StatusBadRequest)
 
 		webResponse := web.WebResponse{
-			Code:   http.StatusBadRequest,
-			Status: "BAD REQUEST",
-			Data:   exception.Error,
+			Success: false,
+			Code:    http.StatusBadRequest,
+			Message: "Bad request. Please check your request body.",
+			Data:    exception.Error,
 		}
 
 		helper.WriteToResponseBody(writer, webResponse)
@@ -105,9 +108,10 @@ func notFoundError(writer http.ResponseWriter, _ *http.Request, err interface{})
 		writer.WriteHeader(http.StatusNotFound)
 
 		webResponse := web.WebResponse{
-			Code:   http.StatusNotFound,
-			Status: "NOT FOUND",
-			Data:   exception.Error,
+			Success: false,
+			Code:    http.StatusNotFound,
+			Message: "Resource not found.",
+			Data:    exception.Error,
 		}
 
 		helper.WriteToResponseBody(writer, webResponse)
@@ -122,9 +126,10 @@ func internalServerError(writer http.ResponseWriter, _ *http.Request, err interf
 	writer.WriteHeader(http.StatusInternalServerError)
 
 	webResponse := web.WebResponse{
-		Code:   http.StatusInternalServerError,
-		Status: "INTERNAL SERVER ERROR",
-		Data:   err,
+		Success: false,
+		Code:    http.StatusInternalServerError,
+		Message: "Internal server error",
+		Data:    err,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)

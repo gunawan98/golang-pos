@@ -118,7 +118,7 @@ func (service *CartServiceImpl) AddProductToCart(ctx context.Context, userId flo
 	return helper.ToCartItemResponse(cartItem)
 }
 
-func (service *CartServiceImpl) UpdateProductInCart(ctx context.Context, userId float64, cartId int, cartItemId int, request web.CartItemUpdateRequest) web.CartItemResponse {
+func (service *CartServiceImpl) UpdateProductInCart(ctx context.Context, userId float64, cartId int, request web.CartItemUpdateRequest) web.CartItemResponse {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 
@@ -163,23 +163,27 @@ func (service *CartServiceImpl) GetCartDetails(ctx context.Context, cartId int) 
 	cartItems := service.CartRepository.GetItemsWithProductByCartId(ctx, tx, cartId)
 
 	var items []web.CartItemWithProductResponse
+	var totalPurchase int
 	for _, item := range cartItems {
 		items = append(items, web.CartItemWithProductResponse{
-			Id:          item.Id,
-			CartID:      item.CartID,
-			ProductID:   item.ProductID,
-			ProductName: item.ProductName,
-			Quantity:    item.Quantity,
-			UnitPrice:   item.UnitPrice,
-			TotalPrice:  item.TotalPrice,
+			Id:           item.Id,
+			CartID:       item.CartID,
+			ProductID:    item.ProductID,
+			ProductName:  item.ProductName,
+			ProductImage: item.ProductImage,
+			Quantity:     item.Quantity,
+			UnitPrice:    item.UnitPrice,
+			TotalPrice:   item.TotalPrice,
 		})
+		totalPurchase += item.TotalPrice
 	}
 
 	resCart := web.CartResponse{
-		Id:        cart.Id,
-		CashierID: cart.CashierID,
-		Completed: cart.Completed,
-		CreatedAt: cart.CreatedAt,
+		Id:            cart.Id,
+		CashierID:     cart.CashierID,
+		Completed:     cart.Completed,
+		CreatedAt:     cart.CreatedAt,
+		TotalPurchase: totalPurchase,
 	}
 
 	return resCart, items

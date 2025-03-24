@@ -25,8 +25,9 @@ func (controller *PurchaseControllerImpl) ConfirmPayment(writer http.ResponseWri
 	userId, ok := request.Context().Value(globalctx.UserIDKey()).(float64)
 	if !ok {
 		webResponse := web.WebResponse{
-			Code:   http.StatusUnauthorized,
-			Status: "Unauthorized",
+			Success: false,
+			Code:    http.StatusUnauthorized,
+			Message: "Unauthorized",
 		}
 
 		helper.WriteToResponseBody(writer, webResponse)
@@ -44,9 +45,10 @@ func (controller *PurchaseControllerImpl) ConfirmPayment(writer http.ResponseWri
 	}
 
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   data,
+		Success: true,
+		Code:    200,
+		Message: "OK",
+		Data:    data,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
@@ -56,8 +58,9 @@ func (controller *PurchaseControllerImpl) GetFinishedPayment(writer http.Respons
 	userId, ok := request.Context().Value(globalctx.UserIDKey()).(float64)
 	if !ok {
 		webResponse := web.WebResponse{
-			Code:   http.StatusUnauthorized,
-			Status: "Unauthorized",
+			Success: false,
+			Code:    http.StatusUnauthorized,
+			Message: "Unauthorized",
 		}
 
 		helper.WriteToResponseBody(writer, webResponse)
@@ -76,9 +79,10 @@ func (controller *PurchaseControllerImpl) GetFinishedPayment(writer http.Respons
 	}
 
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   data,
+		Success: true,
+		Code:    200,
+		Message: "OK",
+		Data:    data,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)

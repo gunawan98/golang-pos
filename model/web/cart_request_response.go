@@ -3,10 +3,11 @@ package web
 import "time"
 
 type CartResponse struct {
-	Id        int       `json:"id"`
-	CashierID int       `json:"cashier_id"`
-	Completed bool      `json:"completed"`
-	CreatedAt time.Time `json:"created_at"`
+	Id            int       `json:"id"`
+	CashierID     int       `json:"cashier_id"`
+	Completed     bool      `json:"completed"`
+	CreatedAt     time.Time `json:"created_at"`
+	TotalPurchase int       `json:"total_purchase"`
 }
 
 type CartItemCreateRequest struct {
@@ -29,11 +30,12 @@ type CartItemResponse struct {
 }
 
 type CartItemWithProductResponse struct {
-	Id          int    `json:"id"`
-	CartID      int    `json:"cart_id"`
-	ProductID   int    `json:"product_id"`
-	ProductName string `json:"product_name"`
-	Quantity    int    `json:"quantity"`
-	UnitPrice   int    `json:"unit_price"`
-	TotalPrice  int    `json:"total_price"`
+	Id           int    `json:"id"`
+	CartID       int    `json:"cart_id"`
+	ProductID    int    `json:"product_id"`
+	ProductName  string `json:"product_name"`
+	ProductImage string `json:"product_image"`
+	Quantity     int    `json:"quantity"`
+	UnitPrice    int    `json:"unit_price"`
+	TotalPrice   int    `json:"total_price"`
 }

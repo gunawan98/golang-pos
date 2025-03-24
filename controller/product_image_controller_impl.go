@@ -40,9 +40,10 @@ func (controller *ProductImageControllerImpl) AddImage(writer http.ResponseWrite
 
 	imageResponse := controller.ProductImageService.AddImage(request.Context(), imageCreateRequest)
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   imageResponse,
+		Success: true,
+		Code:    200,
+		Message: "OK",
+		Data:    imageResponse,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
@@ -64,8 +65,9 @@ func (controller *ProductImageControllerImpl) DeleteImage(writer http.ResponseWr
 	// Delete the image record from the database
 	controller.ProductImageService.DeleteImage(request.Context(), id)
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
+		Success: true,
+		Code:    200,
+		Message: "OK",
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
@@ -78,9 +80,10 @@ func (controller *ProductImageControllerImpl) FindByProductId(writer http.Respon
 
 	imageResponses := controller.ProductImageService.FindByProductId(request.Context(), id)
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   imageResponses,
+		Success: true,
+		Code:    200,
+		Message: "OK",
+		Data:    imageResponses,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)

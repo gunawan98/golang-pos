@@ -102,8 +102,9 @@ func respondWithError(writer http.ResponseWriter, code int, message string) {
 	writer.WriteHeader(code)
 
 	webResponse := web.WebResponse{
-		Code:   code,
-		Status: message,
+		Success: false,
+		Code:    code,
+		Message: message,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)

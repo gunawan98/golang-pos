@@ -26,9 +26,10 @@ func (controller *CategoryControllerImpl) Create(writer http.ResponseWriter, req
 
 	categoryResponse := controller.CategoryService.Create(request.Context(), categoryCreateRequest)
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   categoryResponse,
+		Success: true,
+		Code:    200,
+		Message: "OK",
+		Data:    categoryResponse,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
@@ -46,9 +47,10 @@ func (controller *CategoryControllerImpl) Update(writer http.ResponseWriter, req
 
 	categoryResponse := controller.CategoryService.Update(request.Context(), categoryUpdateRequest)
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   categoryResponse,
+		Success: true,
+		Code:    200,
+		Message: "OK",
+		Data:    categoryResponse,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
@@ -61,8 +63,9 @@ func (controller *CategoryControllerImpl) Delete(writer http.ResponseWriter, req
 
 	controller.CategoryService.Delete(request.Context(), id)
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
+		Success: true,
+		Code:    200,
+		Message: "OK",
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
@@ -75,9 +78,10 @@ func (controller *CategoryControllerImpl) FindById(writer http.ResponseWriter, r
 
 	categoryResponse := controller.CategoryService.FindById(request.Context(), id)
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   categoryResponse,
+		Success: true,
+		Code:    200,
+		Message: "OK",
+		Data:    categoryResponse,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
@@ -86,9 +90,10 @@ func (controller *CategoryControllerImpl) FindById(writer http.ResponseWriter, r
 func (controller *CategoryControllerImpl) FindAll(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	categoryResponses := controller.CategoryService.FindAll(request.Context())
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   categoryResponses,
+		Success: true,
+		Code:    200,
+		Message: "OK",
+		Data:    categoryResponses,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)

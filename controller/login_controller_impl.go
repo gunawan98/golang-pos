@@ -30,7 +30,7 @@ func (controller *LoginControllerImpl) Login(writer http.ResponseWriter, request
 	// if err != nil {
 	// 		webResponse := web.WebResponse{
 	// 				Code:   http.StatusUnauthorized,
-	// 				Status: "Unauthorized",
+	// 				Message: "Unauthorized",
 	// 		}
 	// 		helper.WriteToResponseBody(writer, webResponse)
 	// 		return
@@ -75,9 +75,10 @@ func (controller *LoginControllerImpl) Login(writer http.ResponseWriter, request
 	}
 
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   tokenResponse,
+		Success: true,
+		Code:    200,
+		Message: "OK",
+		Data:    tokenResponse,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
@@ -101,8 +102,9 @@ func (controller *LoginControllerImpl) Refresh(writer http.ResponseWriter, reque
 	if err != nil {
 		fmt.Println("Token parsing error:", err)
 		webResponse := web.WebResponse{
-			Code:   http.StatusUnauthorized,
-			Status: fmt.Sprintf("Invalid refresh token: %v", err),
+			Success: false,
+			Code:    http.StatusUnauthorized,
+			Message: fmt.Sprintf("Invalid refresh token: %v", err),
 		}
 		helper.WriteToResponseBody(writer, webResponse)
 		return
@@ -112,8 +114,9 @@ func (controller *LoginControllerImpl) Refresh(writer http.ResponseWriter, reque
 	if !ok || !token.Valid {
 		fmt.Println("Invalid token or claims extraction failed")
 		webResponse := web.WebResponse{
-			Code:   http.StatusUnauthorized,
-			Status: "Invalid token claims",
+			Success: false,
+			Code:    http.StatusUnauthorized,
+			Message: "Invalid token claims",
 		}
 		helper.WriteToResponseBody(writer, webResponse)
 		return
@@ -164,9 +167,10 @@ func (controller *LoginControllerImpl) Refresh(writer http.ResponseWriter, reque
 	}
 
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   tokenResponse,
+		Success: true,
+		Code:    200,
+		Message: "OK",
+		Data:    tokenResponse,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)

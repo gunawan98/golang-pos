@@ -26,9 +26,9 @@ func (controller *ProductControllerImpl) Create(writer http.ResponseWriter, requ
 
 	productResponse := controller.ProductService.Create(request.Context(), productCreateRequest)
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   productResponse,
+		Success: true,
+		Code:    200,
+		Data:    productResponse,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
@@ -46,9 +46,9 @@ func (controller *ProductControllerImpl) Update(writer http.ResponseWriter, requ
 
 	productResponse := controller.ProductService.Update(request.Context(), productUpdateRequest)
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   productResponse,
+		Success: true,
+		Code:    200,
+		Data:    productResponse,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
@@ -61,8 +61,8 @@ func (controller *ProductControllerImpl) Delete(writer http.ResponseWriter, requ
 
 	controller.ProductService.Delete(request.Context(), id)
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
+		Success: true,
+		Code:    200,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
@@ -75,9 +75,9 @@ func (controller *ProductControllerImpl) FindById(writer http.ResponseWriter, re
 
 	productResponse := controller.ProductService.FindById(request.Context(), id)
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   productResponse,
+		Success: true,
+		Code:    200,
+		Data:    productResponse,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
@@ -86,9 +86,10 @@ func (controller *ProductControllerImpl) FindById(writer http.ResponseWriter, re
 func (controller *ProductControllerImpl) FindAll(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	productResponses := controller.ProductService.FindAll(request.Context())
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   productResponses,
+		Success: true,
+		Code:    200,
+		Message: "Resources retrieved successfully",
+		Data:    productResponses,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)

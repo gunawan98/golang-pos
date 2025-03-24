@@ -153,10 +153,12 @@ func (repository *CartRepositoryImpl) FindFinishedCart(ctx context.Context, tx *
 
 func (repository *CartRepositoryImpl) GetItemsWithProductByCartId(ctx context.Context, tx *sql.Tx, cartId int) []domain.CartItemWithProduct {
 	SQL := `
-			SELECT ci.id, ci.cart_id, ci.product_id, ci.quantity, ci.unit_price, ci.total_price, p.name 
+			SELECT ci.id, ci.cart_id, ci.product_id, ci.quantity, ci.unit_price, ci.total_price, p.name, MIN(IFNULL(pi.url, '')) AS image 
 			FROM cart_item ci
 			JOIN product p ON ci.product_id = p.id
+			LEFT JOIN product_image pi ON p.id = pi.product_id
 			WHERE ci.cart_id = ?
+			GROUP BY ci.id, ci.cart_id, ci.product_id, ci.quantity, ci.unit_price, ci.total_price, p.name
 	`
 	rows, err := tx.QueryContext(ctx, SQL, cartId)
 	helper.PanicIfError(err)
@@ -165,7 +167,7 @@ func (repository *CartRepositoryImpl) GetItemsWithProductByCartId(ctx context.Co
 	var cartItems []domain.CartItemWithProduct
 	for rows.Next() {
 		var cartItem domain.CartItemWithProduct
-		err := rows.Scan(&cartItem.Id, &cartItem.CartID, &cartItem.ProductID, &cartItem.Quantity, &cartItem.UnitPrice, &cartItem.TotalPrice, &cartItem.ProductName)
+		err := rows.Scan(&cartItem.Id, &cartItem.CartID, &cartItem.ProductID, &cartItem.Quantity, &cartItem.UnitPrice, &cartItem.TotalPrice, &cartItem.ProductName, &cartItem.ProductImage)
 		helper.PanicIfError(err)
 		cartItems = append(cartItems, cartItem)
 	}

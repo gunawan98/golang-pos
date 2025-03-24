@@ -26,9 +26,10 @@ func (controller *UserControllerImpl) Create(writer http.ResponseWriter, request
 
 	userResponse := controller.UserService.Create(request.Context(), userCreateRequest)
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   userResponse,
+		Success: true,
+		Code:    200,
+		Message: "OK",
+		Data:    userResponse,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
@@ -46,9 +47,10 @@ func (controller *UserControllerImpl) Update(writer http.ResponseWriter, request
 
 	userResponse := controller.UserService.Update(request.Context(), userUpdateRequest)
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   userResponse,
+		Success: true,
+		Code:    200,
+		Message: "OK",
+		Data:    userResponse,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
@@ -61,8 +63,9 @@ func (controller *UserControllerImpl) Delete(writer http.ResponseWriter, request
 
 	controller.UserService.Delete(request.Context(), id)
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
+		Success: true,
+		Code:    200,
+		Message: "OK",
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
@@ -75,9 +78,10 @@ func (controller *UserControllerImpl) FindById(writer http.ResponseWriter, reque
 
 	userResponse := controller.UserService.FindById(request.Context(), id)
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   userResponse,
+		Success: true,
+		Code:    200,
+		Message: "OK",
+		Data:    userResponse,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
@@ -86,9 +90,10 @@ func (controller *UserControllerImpl) FindById(writer http.ResponseWriter, reque
 func (controller *UserControllerImpl) FindAll(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	userResponses := controller.UserService.FindAll(request.Context())
 	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   userResponses,
+		Success: true,
+		Code:    200,
+		Message: "OK",
+		Data:    userResponses,
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)

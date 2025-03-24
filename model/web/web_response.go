@@ -1,7 +1,9 @@
 package web
 
 type WebResponse struct {
-	Code   int         `json:"code"`
-	Status string      `json:"status"`
-	Data   interface{} `json:"data"`
+	Success  bool        `json:"success"`
+	Code     int         `json:"code"`
+	Message  string      `json:"message"`
+	Data     interface{} `json:"data"`
+	Metadata interface{} `json:"metadata"`
 }
