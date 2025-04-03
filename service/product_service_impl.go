@@ -114,13 +114,19 @@ func (service *ProductServiceImpl) FindById(ctx context.Context, productId int) 
 	return helper.ToProductResponse(product)
 }
 
-func (service *ProductServiceImpl) FindAll(ctx context.Context) []web.ProductResponse {
+func (service *ProductServiceImpl) FindAll(ctx context.Context, page int, perPage int) ([]web.ProductResponse, int) {
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
-	products := service.ProductRepository.FindAll(ctx, tx)
+	// Fetch total count
+	total := service.ProductRepository.CountAllProducts(ctx, tx)
 
+	// Fetch paginated products
+	offset := (page - 1) * perPage
+	products := service.ProductRepository.FindAll(ctx, tx, perPage, offset)
+
+	// Map products to responses
 	var productResponses []web.ProductResponse
 	for _, product := range products {
 		images := service.ProductImageRepository.FindByProductId(ctx, tx, product.Id)
@@ -128,5 +134,5 @@ func (service *ProductServiceImpl) FindAll(ctx context.Context) []web.ProductRes
 		productResponses = append(productResponses, productResponse)
 	}
 
-	return productResponses
+	return productResponses, total
 }

@@ -12,5 +12,5 @@ type UserService interface {
 	Update(ctx context.Context, request web.UserUpdateRequest) web.UserResponse
 	Delete(ctx context.Context, userId int)
 	FindById(ctx context.Context, userId int) web.UserResponse
-	FindAll(ctx context.Context) []web.UserResponse
+	FindAll(ctx context.Context, page int, perPage int) ([]web.UserResponse, int)
 }

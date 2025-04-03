@@ -84,13 +84,14 @@ func (controller *ProductControllerImpl) FindById(writer http.ResponseWriter, re
 }
 
 func (controller *ProductControllerImpl) FindAll(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	productResponses := controller.ProductService.FindAll(request.Context())
-	webResponse := web.WebResponse{
-		Success: true,
-		Code:    200,
-		Message: "Resources retrieved successfully",
-		Data:    productResponses,
-	}
+	// Parse pagination parameters
+	page, perPage := helper.ParsePagination(request)
+
+	// Fetch data and total count from the service
+	productResponses, total := controller.ProductService.FindAll(request.Context(), page, perPage)
+
+	// Create the paginated response
+	webResponse := helper.CreatePaginatedResponse(productResponses, total, page, perPage)
 
 	helper.WriteToResponseBody(writer, webResponse)
 }

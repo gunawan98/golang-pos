@@ -124,12 +124,15 @@ func (service *UserServiceImpl) FindById(ctx context.Context, userId int) web.Us
 	return helper.ToUserResponse(user)
 }
 
-func (service *UserServiceImpl) FindAll(ctx context.Context) []web.UserResponse {
+func (service *UserServiceImpl) FindAll(ctx context.Context, page int, perPage int) ([]web.UserResponse, int) {
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
-	users := service.UserRepository.FindAll(ctx, tx)
+	total := service.UserRepository.CountAllUsers(ctx, tx)
 
-	return helper.ToUserResponses(users)
+	offset := (page - 1) * perPage
+	users := service.UserRepository.FindAll(ctx, tx, perPage, offset)
+
+	return helper.ToUserResponses(users), total
 }

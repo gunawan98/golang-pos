@@ -58,9 +58,9 @@ func (repository *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, 
 	}
 }
 
-func (repository *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []domain.User {
-	SQL := "select id, username, role from user"
-	rows, err := tx.QueryContext(ctx, SQL)
+func (repository *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, limit int, offset int) []domain.User {
+	SQL := "select id, username, role from user LIMIT ? OFFSET ?"
+	rows, err := tx.QueryContext(ctx, SQL, limit, offset)
 	helper.PanicIfError(err)
 	defer rows.Close()
 
@@ -89,4 +89,15 @@ func (repository *UserRepositoryImpl) FindByUsername(ctx context.Context, tx *sq
 	} else {
 		return user, errors.New("invalid username or password")
 	}
+}
+
+func (repository *UserRepositoryImpl) CountAllUsers(ctx context.Context, tx *sql.Tx) int {
+	SQL := "SELECT COUNT(*) FROM user"
+	row := tx.QueryRowContext(ctx, SQL)
+
+	var total int
+	err := row.Scan(&total)
+	helper.PanicIfError(err)
+
+	return total
 }

@@ -11,5 +11,5 @@ type ProductService interface {
 	Update(ctx context.Context, request web.ProductUpdateRequest) web.ProductResponse
 	Delete(ctx context.Context, productId int)
 	FindById(ctx context.Context, productId int) web.ProductResponse
-	FindAll(ctx context.Context) []web.ProductResponse
+	FindAll(ctx context.Context, page int, perPage int) ([]web.ProductResponse, int)
 }

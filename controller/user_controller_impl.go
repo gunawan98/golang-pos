@@ -88,13 +88,9 @@ func (controller *UserControllerImpl) FindById(writer http.ResponseWriter, reque
 }
 
 func (controller *UserControllerImpl) FindAll(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	userResponses := controller.UserService.FindAll(request.Context())
-	webResponse := web.WebResponse{
-		Success: true,
-		Code:    200,
-		Message: "OK",
-		Data:    userResponses,
-	}
+	page, perPage := helper.ParsePagination(request)
+	userResponses, total := controller.UserService.FindAll(request.Context(), page, perPage)
+	webResponse := helper.CreatePaginatedResponse(userResponses, total, page, perPage)
 
 	helper.WriteToResponseBody(writer, webResponse)
 }

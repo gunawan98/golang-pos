@@ -12,6 +12,7 @@ type UserRepository interface {
 	Update(ctx context.Context, tx *sql.Tx, user domain.User) domain.User
 	Delete(ctx context.Context, tx *sql.Tx, userId int)
 	FindById(ctx context.Context, tx *sql.Tx, userId int) (domain.User, error)
-	FindAll(ctx context.Context, tx *sql.Tx) []domain.User
+	FindAll(ctx context.Context, tx *sql.Tx, limit int, offset int) []domain.User
 	FindByUsername(ctx context.Context, tx *sql.Tx, username string) (domain.User, error)
+	CountAllUsers(ctx context.Context, tx *sql.Tx) int
 }

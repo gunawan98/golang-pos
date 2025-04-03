@@ -58,9 +58,9 @@ func (repository *ProductRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 	}
 }
 
-func (repository *ProductRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []domain.Product {
-	SQL := "SELECT id, name, barcode, stock, price, discount FROM product"
-	rows, err := tx.QueryContext(ctx, SQL)
+func (repository *ProductRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, limit int, offset int) []domain.Product {
+	SQL := "SELECT id, name, barcode, stock, price, discount FROM product LIMIT ? OFFSET ?"
+	rows, err := tx.QueryContext(ctx, SQL, limit, offset)
 	helper.PanicIfError(err)
 	defer rows.Close()
 
@@ -95,4 +95,15 @@ func (repository *ProductRepositoryImpl) UpdateStock(ctx context.Context, tx *sq
 	SQL := "UPDATE product SET stock = ? WHERE id = ?"
 	_, err := tx.ExecContext(ctx, SQL, stock, productId)
 	return err
+}
+
+func (repository *ProductRepositoryImpl) CountAllProducts(ctx context.Context, tx *sql.Tx) int {
+	SQL := "SELECT COUNT(*) FROM product"
+	row := tx.QueryRowContext(ctx, SQL)
+
+	var total int
+	err := row.Scan(&total)
+	helper.PanicIfError(err)
+
+	return total
 }

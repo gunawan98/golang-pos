@@ -12,7 +12,8 @@ type ProductRepository interface {
 	Update(ctx context.Context, tx *sql.Tx, product domain.Product) domain.Product
 	Delete(ctx context.Context, tx *sql.Tx, productId int)
 	FindById(ctx context.Context, tx *sql.Tx, productId int) (domain.Product, error)
-	FindAll(ctx context.Context, tx *sql.Tx) []domain.Product
+	FindAll(ctx context.Context, tx *sql.Tx, limit int, offset int) []domain.Product
 	FindByBarcode(ctx context.Context, tx *sql.Tx, barcode string) (domain.Product, error)
 	UpdateStock(ctx context.Context, tx *sql.Tx, productId int, stock int) error
+	CountAllProducts(ctx context.Context, tx *sql.Tx) int
 }
