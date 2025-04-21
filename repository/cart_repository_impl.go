@@ -159,6 +159,7 @@ func (repository *CartRepositoryImpl) GetItemsWithProductByCartId(ctx context.Co
 			LEFT JOIN product_image pi ON p.id = pi.product_id
 			WHERE ci.cart_id = ?
 			GROUP BY ci.id, ci.cart_id, ci.product_id, ci.quantity, ci.unit_price, ci.total_price, p.name
+			ORDER BY ci.id DESC
 	`
 	rows, err := tx.QueryContext(ctx, SQL, cartId)
 	helper.PanicIfError(err)

@@ -188,9 +188,17 @@ func (controller *CartControllerImpl) GetCartDetails(writer http.ResponseWriter,
 
 	cart, items := controller.CartService.GetCartDetails(request.Context(), cartId)
 
+	if items == nil {
+		items = []web.CartItemWithProductResponse{}
+	}
+
 	data := map[string]interface{}{
-		"cart":  cart,
-		"items": items,
+		"id":             cart.Id,
+		"cashier_id":     cart.CashierID,
+		"completed":      cart.Completed,
+		"created_at":     cart.CreatedAt,
+		"total_purchase": cart.TotalPurchase,
+		"items":          items,
 	}
 
 	webResponse := web.WebResponse{
