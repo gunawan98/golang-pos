@@ -29,9 +29,11 @@ func CreatePaginatedResponse(data interface{}, total int, page int, perPage int)
 	// Safely determine the length of the data
 	var count int
 	switch v := data.(type) {
+	case []web.UserResponse:
+		count = len(v)
 	case []web.ProductResponse:
 		count = len(v)
-	case []web.UserResponse:
+	case []web.CartResponse:
 		count = len(v)
 	case []interface{}:
 		count = len(v)

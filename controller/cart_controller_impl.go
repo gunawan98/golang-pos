@@ -57,13 +57,10 @@ func (controller *CartControllerImpl) FinishedCart(writer http.ResponseWriter, r
 		return
 	}
 
-	cartResponse := controller.CartService.FinishedCart(request.Context(), userId)
-	webResponse := web.WebResponse{
-		Success: true,
-		Code:    200,
-		Message: "OK",
-		Data:    cartResponse,
-	}
+	page, perPage := helper.ParsePagination(request)
+	cartResponse, total := controller.CartService.FinishedCart(request.Context(), userId, page, perPage)
+
+	webResponse := helper.CreatePaginatedResponse(cartResponse, total, page, perPage)
 
 	helper.WriteToResponseBody(writer, webResponse)
 }

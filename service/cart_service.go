@@ -8,7 +8,7 @@ import (
 
 type CartService interface {
 	AvailableCart(ctx context.Context, userId float64) []web.CartResponse
-	FinishedCart(ctx context.Context, userId float64) []web.CartResponse
+	FinishedCart(ctx context.Context, userId float64, page int, perPage int) ([]web.CartResponse, int)
 	CreateNewCart(ctx context.Context, userId float64) web.CartResponse
 	AddProductToCart(ctx context.Context, userId float64, cartId int, request web.CartItemCreateRequest) web.CartItemResponse
 	UpdateProductInCart(ctx context.Context, userId float64, cartId int, request web.CartItemUpdateRequest) web.CartItemResponse

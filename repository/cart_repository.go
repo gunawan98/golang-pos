@@ -18,6 +18,7 @@ type CartRepository interface {
 	GetItemsByCartId(ctx context.Context, tx *sql.Tx, cartId int) []domain.CartItem
 	UpdateCartStatus(ctx context.Context, tx *sql.Tx, cartId int) error
 	FindAvailableCart(ctx context.Context, tx *sql.Tx, userId int) []domain.Cart
-	FindFinishedCart(ctx context.Context, tx *sql.Tx, userId int) []domain.Cart
+	FindFinishedCart(ctx context.Context, tx *sql.Tx, userId int, limit int, offset int) []domain.Cart
 	GetItemsWithProductByCartId(ctx context.Context, tx *sql.Tx, cartId int) []domain.CartItemWithProduct
+	CountAllCartIsFinished(ctx context.Context, tx *sql.Tx) int
 }

@@ -134,9 +134,9 @@ func (repository *CartRepositoryImpl) FindAvailableCart(ctx context.Context, tx 
 	return carts
 }
 
-func (repository *CartRepositoryImpl) FindFinishedCart(ctx context.Context, tx *sql.Tx, userId int) []domain.Cart {
-	SQL := "SELECT id, cashier_id, completed, created_at FROM cart WHERE cashier_id=? AND completed=true"
-	rows, err := tx.QueryContext(ctx, SQL, userId)
+func (repository *CartRepositoryImpl) FindFinishedCart(ctx context.Context, tx *sql.Tx, userId int, limit int, offset int) []domain.Cart {
+	SQL := "SELECT id, cashier_id, completed, created_at FROM cart WHERE cashier_id=? AND completed=true LIMIT ? OFFSET ?"
+	rows, err := tx.QueryContext(ctx, SQL, userId, limit, offset)
 	helper.PanicIfError(err)
 	defer rows.Close()
 
@@ -174,4 +174,15 @@ func (repository *CartRepositoryImpl) GetItemsWithProductByCartId(ctx context.Co
 	}
 
 	return cartItems
+}
+
+func (repository *CartRepositoryImpl) CountAllCartIsFinished(ctx context.Context, tx *sql.Tx) int {
+	SQL := "SELECT COUNT(*) FROM cart WHERE completed = true"
+	row := tx.QueryRowContext(ctx, SQL)
+
+	var total int
+	err := row.Scan(&total)
+	helper.PanicIfError(err)
+
+	return total
 }

@@ -39,14 +39,16 @@ func (service *CartServiceImpl) AvailableCart(ctx context.Context, userId float6
 	return helper.ToCartResponses(listCart)
 }
 
-func (service *CartServiceImpl) FinishedCart(ctx context.Context, userId float64) []web.CartResponse {
+func (service *CartServiceImpl) FinishedCart(ctx context.Context, userId float64, page int, perPage int) ([]web.CartResponse, int) {
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
-	listCart := service.CartRepository.FindFinishedCart(ctx, tx, int(userId))
+	total := service.CartRepository.CountAllCartIsFinished(ctx, tx)
+	offset := (page - 1) * perPage
+	listCart := service.CartRepository.FindFinishedCart(ctx, tx, int(userId), perPage, offset)
 
-	return helper.ToCartResponses(listCart)
+	return helper.ToCartResponses(listCart), total
 }
 
 func (service *CartServiceImpl) CreateNewCart(ctx context.Context, userId float64) web.CartResponse {
