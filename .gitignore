@@ -159,4 +159,6 @@ $RECYCLE.BIN/
 *.lnk
 .env
 .env.local
+
+/tmp/
 # End of https://www.toptal.com/developers/gitignore/api/windows,linux,macos,visualstudiocode,sublimetext,go,sonarqube

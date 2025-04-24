@@ -152,7 +152,7 @@ func (service *CartServiceImpl) UpdateProductInCart(ctx context.Context, userId 
 	return helper.ToCartItemResponse(cartItem)
 }
 
-func (service *CartServiceImpl) GetCartDetails(ctx context.Context, cartId int) (web.CartResponse, []web.CartItemWithProductResponse) {
+func (service *CartServiceImpl) GetCartDetails(ctx context.Context, cartId int) (web.CartDetailResponse, []web.CartItemWithProductResponse) {
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
@@ -180,7 +180,7 @@ func (service *CartServiceImpl) GetCartDetails(ctx context.Context, cartId int) 
 		totalPurchase += item.TotalPrice
 	}
 
-	resCart := web.CartResponse{
+	resCart := web.CartDetailResponse{
 		Id:            cart.Id,
 		CashierID:     cart.CashierID,
 		Completed:     cart.Completed,

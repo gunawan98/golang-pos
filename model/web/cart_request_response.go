@@ -3,6 +3,13 @@ package web
 import "time"
 
 type CartResponse struct {
+	Id        int       `json:"id"`
+	CashierID int       `json:"cashier_id"`
+	Completed bool      `json:"completed"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type CartDetailResponse struct {
 	Id            int       `json:"id"`
 	CashierID     int       `json:"cashier_id"`
 	Completed     bool      `json:"completed"`
