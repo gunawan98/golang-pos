@@ -59,7 +59,7 @@ func (repository *ProductRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 }
 
 func (repository *ProductRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, limit int, offset int) []domain.Product {
-	SQL := "SELECT id, name, barcode, stock, price, discount FROM product LIMIT ? OFFSET ?"
+	SQL := "SELECT id, name, barcode, stock, price, discount FROM product ORDER BY id DESC LIMIT ? OFFSET ? "
 	rows, err := tx.QueryContext(ctx, SQL, limit, offset)
 	helper.PanicIfError(err)
 	defer rows.Close()
@@ -88,6 +88,19 @@ func (repository *ProductRepositoryImpl) FindByBarcode(ctx context.Context, tx *
 		return product, nil
 	} else {
 		return product, sql.ErrNoRows
+	}
+}
+
+func (repository *ProductRepositoryImpl) FindBarcodeOtherOwn(ctx context.Context, tx *sql.Tx, productId int, barcode string) bool {
+	SQL := "SELECT id FROM product WHERE barcode = ? AND id != ?"
+	rows, err := tx.QueryContext(ctx, SQL, barcode, productId)
+	helper.PanicIfError(err)
+	defer rows.Close()
+
+	if rows.Next() {
+		return true
+	} else {
+		return false
 	}
 }
 

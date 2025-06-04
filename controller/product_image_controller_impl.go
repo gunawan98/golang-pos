@@ -24,14 +24,14 @@ func (controller *ProductImageControllerImpl) AddImage(writer http.ResponseWrite
 	err := request.ParseMultipartForm(10 << 20) // max 10MB
 	helper.PanicIfError(err)
 
-	file, handler, err := request.FormFile("file")
+	file, _, err := request.FormFile("file")
 	helper.PanicIfError(err)
 	defer file.Close()
 
 	productId, err := strconv.Atoi(params.ByName("productId"))
 	helper.PanicIfError(err)
 
-	filePath := helper.SaveFile(file, handler.Filename)
+	filePath := helper.SaveFile(file)
 
 	imageCreateRequest := web.ProductImageCreateRequest{
 		ProductId: productId,

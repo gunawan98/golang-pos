@@ -69,6 +69,11 @@ func (service *ProductImageServiceImpl) FindByProductId(ctx context.Context, pro
 
 	images := service.ProductImageRepository.FindByProductId(ctx, tx, productId)
 
+	// Ensure the response is an empty slice if no images are found
+	if images == nil {
+		return []web.ProductImageResponse{} // Initialize as an empty slice
+	}
+
 	return helper.ToImageResponses(images)
 }
 

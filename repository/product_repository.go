@@ -14,6 +14,7 @@ type ProductRepository interface {
 	FindById(ctx context.Context, tx *sql.Tx, productId int) (domain.Product, error)
 	FindAll(ctx context.Context, tx *sql.Tx, limit int, offset int) []domain.Product
 	FindByBarcode(ctx context.Context, tx *sql.Tx, barcode string) (domain.Product, error)
+	FindBarcodeOtherOwn(ctx context.Context, tx *sql.Tx, productId int, barcode string) bool
 	UpdateStock(ctx context.Context, tx *sql.Tx, productId int, stock int) error
 	CountAllProducts(ctx context.Context, tx *sql.Tx) int
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
-	"fmt"
 	"mime/multipart"
 	"os"
 	"strconv"
@@ -15,6 +14,14 @@ import (
 	"github.com/cloudinary/cloudinary-go/v2/api/admin"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 )
+
+func initializeCloudinary() (*cloudinary.Cloudinary, error) {
+	return cloudinary.NewFromParams(
+		os.Getenv("CLOUDINARY_CLOUD_NAME"),
+		os.Getenv("CLOUDINARY_API_KEY"),
+		os.Getenv("CLOUDINARY_API_SECRET"),
+	)
+}
 
 // generateShortUniqueName generates a short unique name using timestamp and random bytes
 func generateShortUniqueName() (string, error) {
@@ -27,12 +34,17 @@ func generateShortUniqueName() (string, error) {
 	return hex.EncodeToString(randomBytes) + "_" + strconv.FormatInt(timestamp, 36), nil
 }
 
-func SaveFile(file multipart.File, filename string) string {
-	cld, err := cloudinary.NewFromParams(
-		os.Getenv("CLOUDINARY_CLOUD_NAME"),
-		os.Getenv("CLOUDINARY_API_KEY"),
-		os.Getenv("CLOUDINARY_API_SECRET"),
-	)
+// extractPublicID extracts the public ID from the Cloudinary URL
+func extractPublicID(url string) string {
+	// Assuming the URL format is something like: https://res.cloudinary.com/<cloud_name>/image/upload/v<version>/<public_id>.<format>
+	parts := strings.Split(url, "/")
+	publicIDWithFormat := parts[len(parts)-1]
+	publicID := strings.Split(publicIDWithFormat, ".")[0]
+	return publicID
+}
+
+func SaveFile(file multipart.File) string {
+	cld, err := initializeCloudinary()
 	PanicIfError(err)
 
 	// Generate a short unique name
@@ -51,13 +63,8 @@ func SaveFile(file multipart.File, filename string) string {
 }
 
 func DeleteFile(url string) error {
-	cld, err := cloudinary.NewFromParams(
-		os.Getenv("CLOUDINARY_CLOUD_NAME"),
-		os.Getenv("CLOUDINARY_API_KEY"),
-		os.Getenv("CLOUDINARY_API_SECRET"),
-	)
+	cld, err := initializeCloudinary()
 	if err != nil {
-		fmt.Println("Error creating Cloudinary instance:", err)
 		return err
 	}
 
@@ -77,11 +84,28 @@ func DeleteFile(url string) error {
 	return nil
 }
 
-// extractPublicID extracts the public ID from the Cloudinary URL
-func extractPublicID(url string) string {
-	// Assuming the URL format is something like: https://res.cloudinary.com/<cloud_name>/image/upload/v<version>/<public_id>.<format>
-	parts := strings.Split(url, "/")
-	publicIDWithFormat := parts[len(parts)-1]
-	publicID := strings.Split(publicIDWithFormat, ".")[0]
-	return publicID
+func DeleteMultipleFiles(urls []string) error {
+	cld, err := initializeCloudinary()
+	if err != nil {
+		return err
+	}
+
+	// Extract public IDs from the URLs
+	var publicIDs []string
+	for _, url := range urls {
+		publicID := extractPublicID(url)
+		publicIDs = append(publicIDs, "product/"+publicID)
+	}
+
+	// Delete the images from Cloudinary using the Admin API
+	_, err = cld.Admin.DeleteAssets(context.Background(), admin.DeleteAssetsParams{
+		PublicIDs:    publicIDs,
+		DeliveryType: "upload",
+		AssetType:    "image",
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

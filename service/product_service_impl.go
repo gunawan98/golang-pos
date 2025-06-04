@@ -70,11 +70,9 @@ func (service *ProductServiceImpl) Update(ctx context.Context, request web.Produ
 		panic(exception.NewNotFoundError(err.Error()))
 	}
 
-	_, err = service.ProductRepository.FindByBarcode(ctx, tx, request.Barcode)
-	if err == nil {
+	barcodeExists := service.ProductRepository.FindBarcodeOtherOwn(ctx, tx, product.Id, request.Barcode)
+	if barcodeExists {
 		panic(exception.NewDataAlreadyExistsError("Barcode already exists"))
-	} else if err != sql.ErrNoRows {
-		helper.PanicIfError(err)
 	}
 
 	product.Name = request.Name
@@ -97,6 +95,17 @@ func (service *ProductServiceImpl) Delete(ctx context.Context, productId int) {
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
 	}
+
+	images := service.ProductImageRepository.FindByProductId(ctx, tx, productId)
+
+	var imageURL []string
+	for _, url := range images {
+		imageURL = append(imageURL, url.Url)
+	}
+
+	// Delete the image from Cloudinary
+	err = helper.DeleteMultipleFiles(imageURL)
+	helper.PanicIfError(err)
 
 	service.ProductRepository.Delete(ctx, tx, product.Id)
 }
